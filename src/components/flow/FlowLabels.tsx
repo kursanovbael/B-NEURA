@@ -1,0 +1,111 @@
+"use client";
+
+import type { RefObject } from "react";
+import type { FlowLabelElements } from "@/components/3d/ExperienceDriver";
+import type { FlowLabelId } from "@/components/3d/flowVisuals";
+import { CONTEXT_LABELS } from "@/content/contextLabels";
+import { DEFAULT_INTENTION } from "@/content/systemFlow";
+import { cn } from "@/lib/cn";
+
+type LabelSpec = {
+  id: FlowLabelId;
+  /** Step number shown in the marker; empty for the represented-intention tag. */
+  number: string;
+  name: string;
+  details?: readonly string[];
+  tone: "signal" | "violet" | "intention" | "feedback";
+};
+
+const LABELS: readonly LabelSpec[] = [
+  {
+    id: "intention",
+    number: "1",
+    name: "Intention",
+    details: [DEFAULT_INTENTION.label],
+    tone: "intention",
+  },
+  { id: "sensors", number: "2", name: "Sensors", tone: "signal" },
+  { id: "decoder", number: "3", name: "AI decoder", tone: "violet" },
+  {
+    id: "represented",
+    number: "",
+    name: DEFAULT_INTENTION.label,
+    details: [CONTEXT_LABELS.virtualControlActive, CONTEXT_LABELS.simulation],
+    tone: "intention",
+  },
+  { id: "hand", number: "4", name: "Virtual hand", tone: "intention" },
+  {
+    id: "feedback",
+    number: "5",
+    name: "Simulated feedback",
+    tone: "feedback",
+  },
+];
+
+const TONE: Record<LabelSpec["tone"], string> = {
+  signal: "border-accent text-accent",
+  violet: "border-violet text-violet",
+  intention: "border-foreground text-foreground",
+  feedback: "border-foreground/70 text-foreground",
+};
+
+type FlowLabelsProps = {
+  flowLabelEls: RefObject<FlowLabelElements>;
+};
+
+/**
+ * Numbered labels on the route: a small marker on the part, a thin leader and
+ * the name. The frame loop moves each one to its point and sets its opacity
+ * and data-active. They repeat text that is also in the panel, so they are
+ * hidden from assistive technology.
+ */
+export function FlowLabels({ flowLabelEls }: FlowLabelsProps) {
+  return (
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-20">
+      {LABELS.map((label) => (
+        <div
+          key={label.id}
+          ref={(el) => {
+            flowLabelEls.current[label.id] = el;
+          }}
+          className="group/co group/fl absolute top-0 left-0 will-change-transform"
+          style={{ visibility: "hidden", opacity: 0 }}
+        >
+          {label.number ? (
+            <span
+              className={cn(
+                "bg-background absolute -top-2.5 -left-2.5 flex h-5 w-5 items-center justify-center rounded-full border text-[0.6875rem] font-semibold",
+                TONE[label.tone],
+              )}
+            >
+              {label.number}
+            </span>
+          ) : (
+            <span className="bg-foreground absolute -top-1 -left-1 h-2 w-2 rounded-full" />
+          )}
+          <span className="bg-border-strong absolute top-0 left-3 h-px w-6 group-data-[side=left]/co:right-3 group-data-[side=left]/co:left-auto md:w-10" />
+          <span className="absolute top-0 left-10 -translate-y-1/2 text-left whitespace-nowrap group-data-[side=left]/co:right-10 group-data-[side=left]/co:left-auto group-data-[side=left]/co:text-right md:left-14 md:group-data-[side=left]/co:right-14 md:group-data-[side=left]/co:left-auto">
+            <span
+              className={cn(
+                "bg-background/80 text-muted group-data-[active=true]/fl:text-foreground max-md:hidden max-md:group-data-[active=true]/fl:block block rounded-sm px-1.5 py-0.5 text-xs font-medium md:text-sm",
+              )}
+            >
+              {label.name}
+            </span>
+            {label.details?.map((line) => (
+              <span
+                key={line}
+                className={cn(
+                  "bg-background/80 mt-px block rounded-sm px-1.5 py-0.5 max-md:hidden max-md:group-data-[active=true]/fl:block text-[0.625rem] font-semibold tracking-wider md:text-[0.6875rem]",
+                  "text-accent",
+                )}
+              >
+                {line}
+              </span>
+            ))}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}

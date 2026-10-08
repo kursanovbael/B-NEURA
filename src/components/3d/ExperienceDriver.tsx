@@ -1,68 +1,174 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 import { useFrame } from "@react-three/fiber";
-import type { HelmetStageId } from "@/content/helmetStages";
+import { Vector3 } from "three";
 import {
   applyHelmetState,
   findHelmetObjects,
   type HelmetObjects,
 } from "./applyHelmetState";
+import { applyFlow, findFlowObjects, type FlowObjects } from "./applyFlow";
 import { applyCameraPose } from "./CameraRig";
-import { phaseForProgress } from "./experience";
-import { readProgress } from "./progress";
-import { sampleTimeline } from "./timeline";
-import type { ProgressSource } from "./types";
+import { FLOW_LABEL_ANCHORS } from "./flowPaths";
+import {
+  FLOW_LABEL_IDS,
+  flowVisuals,
+  stepFlow,
+  type FlowDriverState,
+  type FlowLabelId,
+} from "./flowVisuals";
+import { HELMET_LAYERS } from "./helmetLayers";
+import { markActive, placeCallout } from "./callouts";
+import { stepInteraction, type Interaction } from "./interaction";
+import { sampleJourney } from "./journey";
+import { readJourney } from "./journeyScroll";
+import type { HelmetLayerId, JourneySource } from "./types";
 
-/** Rate (1/s) at which the shown progress eases toward the scroll position. */
-const DAMPING = 7;
-const SETTLE_EPSILON = 1e-4;
+/** Rate (1/s) at which the shown position eases toward the scroll position. */
+const DAMPING = 8;
+/** Opacity factor applied to the shell while another part is selected. */
+const SHELL_SELECTION_DIM = 0.5;
+
+/** A label needs about this much room to the right of its dot. */
+const FLIP_MARGIN = 190;
+/** The represented-intention tag is wider than the other labels. */
+const WIDE_FLIP_MARGIN = 300;
+/** Below this width the flow labels flip at the middle of the screen. */
+const NARROW_WIDTH = 640;
+/** On narrow screens a label flips once its dot is past this share of the width. */
+const NARROW_FLIP = 0.5;
+
+const point = new Vector3();
+
+export type CalloutElements = Partial<
+  Record<HelmetLayerId, HTMLElement | null>
+>;
+
+export type FlowLabelElements = Partial<
+  Record<FlowLabelId, HTMLElement | null>
+>;
 
 type ExperienceDriverProps = {
-  source: ProgressSource;
-  onStageChange?: (stage: HelmetStageId) => void;
+  source: JourneySource;
+  interaction: RefObject<Interaction>;
+  calloutEls: RefObject<CalloutElements>;
+  flow: RefObject<FlowDriverState>;
+  flowLabelEls: RefObject<FlowLabelElements>;
 };
 
 /**
- * Drives the scene from a progress source once per frame: reads progress,
- * samples the deterministic timeline and applies it to the camera and helmet.
- * Scroll is only read, never intercepted, and no React state changes per frame.
- * Eased scroll progress settles on exactly the same state for the same position.
+ * Drives the scene once per frame: reads the position in the story, samples
+ * the deterministic journey, adds the visitor's turning and selection, and
+ * applies it to the camera, the helmet and the callout elements. Scroll is
+ * only read, never intercepted, and no React state changes per frame.
  */
 export function ExperienceDriver({
   source,
-  onStageChange,
+  interaction,
+  calloutEls,
+  flow,
+  flowLabelEls,
 }: ExperienceDriverProps) {
   const shown = useRef<number | null>(null);
-  const lastStage = useRef<HelmetStageId | null>(null);
   const objects = useRef<HelmetObjects | null>(null);
+  const flowObjects = useRef<FlowObjects | null>(null);
 
   useFrame((state, delta) => {
-    const target = readProgress(source);
-
-    if (shown.current === null || source.mode === "fixed") {
+    const target = readJourney(source);
+    const instant = source.mode === "fixed";
+    if (shown.current === null || instant) {
       shown.current = target;
     } else {
-      const next =
-        shown.current +
+      shown.current +=
         (target - shown.current) * (1 - Math.exp(-DAMPING * delta));
-      shown.current = Math.abs(target - next) < SETTLE_EPSILON ? target : next;
+      if (Math.abs(target - shown.current) < 1e-4) shown.current = target;
     }
 
-    const progress = shown.current;
-    const aspect = state.size.width / state.size.height;
-    const timeline = sampleTimeline(progress, aspect);
+    const { width, height } = state.size;
+    const journey = sampleJourney(shown.current, width / height);
 
-    // Groups mount after the first render; look them up once they exist.
+    const it = interaction.current;
+    stepInteraction(it, delta, instant);
+
+    // In the flow chapter the helmet holds the pose the route is drawn for.
+    const turned = 1 - journey.flowWeight;
+
+    // Selecting a part brings it to full strength and dims the rest.
+    const focus = { ...journey.focus };
+    for (const layer of HELMET_LAYERS) {
+      const wanted = layer.id === it.selected ? 1 : 0;
+      focus[layer.id] += (wanted - focus[layer.id]) * it.selectionWeight;
+    }
+    const shellDim =
+      it.selected && it.selected !== "outer-shell"
+        ? 1 - SHELL_SELECTION_DIM * it.selectionWeight
+        : 1;
+
     if (!objects.current?.root)
       objects.current = findHelmetObjects(state.scene);
-    applyHelmetState(timeline, objects.current);
-    applyCameraPose(state.camera, timeline.camera);
+    const found = objects.current;
+    applyHelmetState(
+      {
+        yaw: journey.yaw + it.yaw * turned,
+        pitch: it.pitch * turned,
+        shellOpacity: journey.shellOpacity * shellDim,
+        focus,
+        separation: journey.separation,
+        guides: journey.guides,
+        path: journey.path,
+        bridge: journey.bridge,
+      },
+      found,
+    );
 
-    const stage = phaseForProgress(progress);
-    if (stage !== lastStage.current) {
-      lastStage.current = stage;
-      onStageChange?.(stage);
+    if (!flowObjects.current?.group)
+      flowObjects.current = findFlowObjects(state.scene);
+    stepFlow(flow.current, delta, instant);
+    const visuals = flowVisuals(flow.current.shown);
+    applyFlow(visuals, journey.flowWeight, flowObjects.current);
+
+    applyCameraPose(state.camera, journey.camera, journey.shift, width, height);
+    found.root?.updateMatrixWorld(true);
+    state.camera.matrixWorldInverse.copy(state.camera.matrixWorld).invert();
+
+    // Callouts follow their parts in screen space.
+    const interactive = journey.hotspots >= 0.9;
+    for (const layer of HELMET_LAYERS) {
+      const el = calloutEls.current[layer.id];
+      const group = found.layers[layer.id];
+      if (!el || !group) continue;
+      point.set(layer.anchor[0], layer.anchor[1], layer.anchor[2]);
+      group.localToWorld(point);
+      point.project(state.camera);
+      const visible = point.z < 1 ? journey.callouts[layer.id] : 0;
+      placeCallout(
+        el,
+        (point.x * 0.5 + 0.5) * width,
+        (-point.y * 0.5 + 0.5) * height,
+        visible,
+        interactive,
+        (point.x * 0.5 + 0.5) * width > width - FLIP_MARGIN,
+      );
+    }
+
+    // Numbered flow labels follow their points on the route.
+    for (const id of FLOW_LABEL_IDS) {
+      const el = flowLabelEls.current[id];
+      if (!el) continue;
+      point.copy(FLOW_LABEL_ANCHORS[id]).project(state.camera);
+      const x = (point.x * 0.5 + 0.5) * width;
+      const y = (-point.y * 0.5 + 0.5) * height;
+      const own = id === "represented" ? visuals.represented : 1;
+      const on = point.z < 1 ? journey.flowWeight * own : 0;
+      const margin =
+        width < NARROW_WIDTH
+          ? width * NARROW_FLIP
+          : id === "represented"
+            ? WIDE_FLIP_MARGIN
+            : FLIP_MARGIN;
+      placeCallout(el, x, y, on, false, x > width - margin);
+      markActive(el, visuals.active[id]);
     }
   });
 

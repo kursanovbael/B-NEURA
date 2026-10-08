@@ -77,6 +77,26 @@ function archPoints(
   });
 }
 
+/**
+ * Gives the dome a helmet silhouette: below the equator the shell extends down
+ * and slightly back toward the nape, so the rear covers the back of the head
+ * and the profile no longer reads as a ball. Applied to the shell surface and
+ * to every line that follows it, so trim and seams stay on the surface.
+ */
+const SKIRT = { drop: 0.34, push: 0.08, reach: 0.5 } as const;
+
+function deformShell(point: Vector3): Vector3 {
+  const depth = SHELL.a * SHELL.scaleZ;
+  const back = Math.min(1, Math.max(0, -point.z / depth));
+  const below = Math.min(1, Math.max(0, -point.y / SKIRT.reach));
+  const weight = below * below * (3 - 2 * below) * Math.pow(back, 1.3);
+  return new Vector3(
+    point.x,
+    point.y - SKIRT.drop * weight,
+    point.z - SKIRT.push * weight,
+  );
+}
+
 function shellGeometry(): BufferGeometry {
   const { a, b, thickness, scaleX, scaleZ, rim } = SHELL;
   const steps = 32;
@@ -94,6 +114,15 @@ function shellGeometry(): BufferGeometry {
   profile.push(profile[0].clone()); // close the rim edge
   const geometry = new LatheGeometry(profile, 72);
   geometry.scale(scaleX, 1, scaleZ);
+
+  const positions = geometry.getAttribute("position");
+  const vertex = new Vector3();
+  for (let i = 0; i < positions.count; i++) {
+    vertex.fromBufferAttribute(positions, i);
+    const moved = deformShell(vertex);
+    positions.setXYZ(i, moved.x, moved.y, moved.z);
+  }
+  geometry.computeVertexNormals();
   return geometry;
 }
 
@@ -153,8 +182,8 @@ function shellSeams(): BufferGeometry[] {
     96,
   ).slice(0, -1);
   return [
-    tube(over("x"), 0.0045),
-    tube(over("z"), 0.0045),
+    tube(over("x").map(deformShell), 0.0045),
+    tube(over("z").map(deformShell), 0.0045),
     tube(equator, 0.0045, true),
   ];
 }
@@ -163,7 +192,9 @@ function rimTrimGeometry(): BufferGeometry {
   const { a, b, scaleX, scaleZ, rim } = SHELL;
   const y = b * Math.sin(rim);
   const r = a * Math.cos(rim);
-  const pts = azimuthArc(r * scaleX, r * scaleZ, y, 0, TAU, 96).slice(0, -1);
+  const pts = azimuthArc(r * scaleX, r * scaleZ, y, 0, TAU, 96)
+    .slice(0, -1)
+    .map(deformShell);
   return tube(pts, 0.014, true);
 }
 
@@ -178,7 +209,10 @@ const SENSOR_RINGS = [
   { elevation: deg(65), count: 3, azimuth0: deg(60) },
 ] as const;
 
-function placementAt(elevation: number, azimuth: number): SensorPlacement {
+export function placementAt(
+  elevation: number,
+  azimuth: number,
+): SensorPlacement {
   const { rx, ry, rz } = SENSOR_SURFACE;
   const position = new Vector3(
     rx * Math.cos(elevation) * Math.sin(azimuth),
@@ -298,7 +332,7 @@ function supportPosts(): SupportPost[] {
 
 export type FeedbackPad = { position: Vector3; rotationY: number };
 
-const FEEDBACK = { y: -0.3, rx: 0.57, rz: 0.67 } as const;
+export const FEEDBACK = { y: -0.3, rx: 0.57, rz: 0.67 } as const;
 
 /** Four abstract pads along the feedback band. */
 function feedbackPads(): FeedbackPad[] {

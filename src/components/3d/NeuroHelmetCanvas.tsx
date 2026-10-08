@@ -1,30 +1,38 @@
 "use client";
 
+import type { RefObject } from "react";
 import { Canvas } from "@react-three/fiber";
-import type { HelmetStageId } from "@/content/helmetStages";
 import { DEFAULT_CAMERA_POSE } from "./CameraRig";
-import type { HelmetLayerVisibility } from "./helmet";
+import type { CalloutElements, FlowLabelElements } from "./ExperienceDriver";
+import type { FlowDriverState } from "./flowVisuals";
+import type { Interaction } from "./interaction";
 import { NeuroHelmetScene } from "./NeuroHelmetScene";
-import type { ProgressSource } from "./types";
+import type { JourneySource } from "./types";
 
 type NeuroHelmetCanvasProps = {
-  source: ProgressSource;
-  visibleLayers: HelmetLayerVisibility;
+  source: JourneySource;
+  interaction: RefObject<Interaction>;
+  calloutEls: RefObject<CalloutElements>;
+  flow: RefObject<FlowDriverState>;
+  flowLabelEls: RefObject<FlowLabelElements>;
+  redrawKey: string;
   reducedMotion: boolean;
   /** When false, rendering is fully paused (no per-frame work). */
   active: boolean;
   onContextLost: () => void;
-  onStageChange?: (stage: HelmetStageId) => void;
 };
 
-/** The single WebGL canvas. Loaded lazily by NeuroHelmetViewer. */
+/** The single WebGL canvas. Loaded lazily by ExperienceCanvas. */
 export default function NeuroHelmetCanvas({
   source,
-  visibleLayers,
+  interaction,
+  calloutEls,
+  flow,
+  flowLabelEls,
+  redrawKey,
   reducedMotion,
   active,
   onContextLost,
-  onStageChange,
 }: NeuroHelmetCanvasProps) {
   return (
     <Canvas
@@ -44,8 +52,11 @@ export default function NeuroHelmetCanvas({
     >
       <NeuroHelmetScene
         source={source}
-        visibleLayers={visibleLayers}
-        onStageChange={onStageChange}
+        interaction={interaction}
+        calloutEls={calloutEls}
+        flow={flow}
+        flowLabelEls={flowLabelEls}
+        redrawKey={redrawKey}
       />
     </Canvas>
   );

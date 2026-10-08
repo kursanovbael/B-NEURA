@@ -309,14 +309,16 @@ One of the most important sections. An animated system architecture (SVG/CSS fir
 BRAIN → BCI → AI DECODER → INTENTION → VIRTUAL BODY → VR WORLD → SENSORY FEEDBACK → BRAIN
 ```
 
-A glowing signal travels through the system. Subtle, technically styled. Interactive button: **START SIGNAL**. Simulated sequence:
+A simulated signal moves through the system. Subtle, technically styled. Interactive button: **START SIGNAL**. The simulation moves through these states, starting from IDLE:
 
-1. NEURAL SIGNAL (simulated)
+1. SIGNAL ACQUIRED (simulated)
 2. SIGNAL PROCESSED
-3. INTENTION IDENTIFIED (simulated)
-4. MOVEMENT PREDICTED
-5. VIRTUAL BODY UPDATED
-6. FEEDBACK SIMULATION
+3. INTENTION REPRESENTED
+4. VIRTUAL BODY UPDATED
+5. ENVIRONMENT RESPONSE
+6. FEEDBACK SIMULATED
+
+After the last state the button becomes **RUN AGAIN**. Each state is a simulated representation, not a real measurement. The flow uses "states"; "stages" is reserved for the NeuroHelmet scroll experience.
 
 Labeled **SIMULATION**. Step names must not imply real measurement. A text version of the sequence is always available.
 
@@ -622,7 +624,7 @@ A small ordered list of sections with `id`, `title`, and `anchor`. It supports n
 
 ### 18.5 Pipeline states
 
-Shared definitions of the simulated pipeline steps (signal, processed, intention, predicted, body updated, feedback). Created in Phase 5 and reused by VRDemo and Embodiment.
+Shared definitions of the simulated flow states: idle, signal acquired, signal processed, intention represented, body updated, environment response, feedback simulated. Created in Phase 5 as pure content and transition functions, and reused by VRDemo and Embodiment.
 
 ### 18.6 Disclaimer
 

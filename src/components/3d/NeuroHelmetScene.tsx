@@ -1,40 +1,63 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type RefObject } from "react";
 import { useThree } from "@react-three/fiber";
-import type { HelmetStageId } from "@/content/helmetStages";
 import { CameraRig } from "./CameraRig";
-import { ExperienceDriver } from "./ExperienceDriver";
-import { NeuroHelmet, type HelmetLayerVisibility } from "./helmet";
+import {
+  ExperienceDriver,
+  type CalloutElements,
+  type FlowLabelElements,
+} from "./ExperienceDriver";
+import type { FlowDriverState } from "./flowVisuals";
+import { FlowVisuals } from "./helmet/FlowVisuals";
+import { ExplodeGuides } from "./helmet/ExplodeGuides";
+import { NeuroHelmet } from "./helmet";
+import { SignalPath } from "./helmet/SignalPath";
+import type { Interaction } from "./interaction";
 import { SceneEnvironment } from "./SceneEnvironment";
-import type { ProgressSource } from "./types";
+import type { JourneySource } from "./types";
 
 type NeuroHelmetSceneProps = {
-  source: ProgressSource;
-  visibleLayers: HelmetLayerVisibility;
-  onStageChange?: (stage: HelmetStageId) => void;
+  source: JourneySource;
+  interaction: RefObject<Interaction>;
+  calloutEls: RefObject<CalloutElements>;
+  flow: RefObject<FlowDriverState>;
+  flowLabelEls: RefObject<FlowLabelElements>;
+  /** Changes whenever the scene must be redrawn while rendering on demand. */
+  redrawKey: string;
 };
 
-/** Composes camera, environment, helmet and the timeline driver. */
+/** Composes camera, environment, helmet, guides, path and the journey driver. */
 export function NeuroHelmetScene({
   source,
-  visibleLayers,
-  onStageChange,
+  interaction,
+  calloutEls,
+  flow,
+  flowLabelEls,
+  redrawKey,
 }: NeuroHelmetSceneProps) {
   const invalidate = useThree((state) => state.invalidate);
 
-  // With a fixed source the canvas renders on demand; redraw on any change.
-  const fixedValue = source.mode === "fixed" ? source.value : null;
+  // With on-demand rendering (reduced motion), redraw whenever something changed.
   useEffect(() => {
     invalidate();
-  }, [fixedValue, visibleLayers, invalidate]);
+  }, [redrawKey, invalidate]);
 
   return (
     <>
       <CameraRig />
       <SceneEnvironment />
-      <NeuroHelmet visibleLayers={visibleLayers} />
-      <ExperienceDriver source={source} onStageChange={onStageChange} />
+      <NeuroHelmet />
+      <SignalPath />
+      <ExplodeGuides />
+      <FlowVisuals />
+      <ExperienceDriver
+        source={source}
+        interaction={interaction}
+        calloutEls={calloutEls}
+        flow={flow}
+        flowLabelEls={flowLabelEls}
+      />
     </>
   );
 }
