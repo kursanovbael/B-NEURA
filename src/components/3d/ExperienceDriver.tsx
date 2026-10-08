@@ -18,6 +18,7 @@ import {
   stepFlow,
   type FlowDriverState,
   type FlowLabelId,
+  type FlowVisuals,
 } from "./flowVisuals";
 import { HELMET_LAYERS } from "./helmetLayers";
 import { markActive, placeCallout } from "./callouts";
@@ -41,6 +42,42 @@ const NARROW_WIDTH = 640;
 const NARROW_FLIP = 0.5;
 
 const point = new Vector3();
+
+/**
+ * How visible each flow label is, apart from the chapter itself. The story
+ * labels step back in the chapters that explain what returns, and the labels
+ * for the selected feedback kind show only while it is selected.
+ */
+function labelWeight(id: FlowLabelId, visuals: FlowVisuals): number {
+  const { emphasis, paths } = visuals;
+  const story = 1 - emphasis.focus;
+  switch (id) {
+    case "represented":
+      return visuals.represented * story;
+    case "intention":
+    case "sensors":
+    case "decoder":
+      return story;
+    case "feedback":
+      return emphasis.focus > 0.5 ? (paths[3] > 0.05 ? 1 : 0) : 1;
+    case "user":
+      return emphasis.focus > 0.5 ? paths[4] : paths[4];
+    case "cue":
+      return emphasis.cue;
+    case "kind":
+      return Math.max(emphasis.touch, emphasis.pressure, emphasis.temperature);
+    case "angle":
+      return emphasis.arc;
+    case "hand":
+      return 1 - emphasis.arc;
+    case "object":
+      return (
+        1 - Math.max(emphasis.touch, emphasis.pressure, emphasis.temperature)
+      );
+    default:
+      return 1;
+  }
+}
 
 export type CalloutElements = Partial<
   Record<HelmetLayerId, HTMLElement | null>
@@ -126,7 +163,7 @@ export function ExperienceDriver({
     if (!flowObjects.current?.group)
       flowObjects.current = findFlowObjects(state.scene);
     stepFlow(flow.current, delta, instant);
-    const visuals = flowVisuals(flow.current.shown);
+    const visuals = flowVisuals(flow.current.shown, flow.current.emphasis);
     const portrait = width / height < 1.2;
     const close = portrait
       ? journey.flowWeight * contactFocus(flow.current.shown)
@@ -170,12 +207,7 @@ export function ExperienceDriver({
       point.copy(FLOW_LABEL_ANCHORS[id]).project(state.camera);
       const x = (point.x * 0.5 + 0.5) * width;
       const y = (-point.y * 0.5 + 0.5) * height;
-      const own =
-        id === "represented"
-          ? visuals.represented
-          : id === "user"
-            ? visuals.paths[4]
-            : 1;
+      const own = labelWeight(id, visuals);
       const on = point.z < 1 ? journey.flowWeight * own : 0;
       const margin =
         width < NARROW_WIDTH

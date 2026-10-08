@@ -3,6 +3,7 @@ import { Quaternion, TubeGeometry, Vector3 } from "three";
 import {
   FLOW_ANCHORS,
   FLOW_CURVES,
+  ANGLE_ARC,
   FLOW_PATH_KIND,
   OBJECT_RADIUS,
 } from "../flowPaths";
@@ -21,6 +22,7 @@ const ACTIVE_MATERIAL = {
   signal: FLOW_MATERIALS.signal,
   intention: FLOW_MATERIALS.intention,
   feedback: FLOW_MATERIALS.feedback,
+  cue: FLOW_MATERIALS.cue,
 } as const;
 /**
  * The route of one simulated intention, drawn through the helmet's own parts:
@@ -67,7 +69,11 @@ export function FlowVisuals() {
     <group name="flow-visuals" visible={false}>
       {parts.map((part, i) => (
         <group key={i}>
-          <mesh geometry={part.rail} material={FLOW_MATERIALS.rail} />
+          <mesh
+            name={`flow-rail-${i}`}
+            geometry={part.rail}
+            material={FLOW_MATERIALS.rail}
+          />
           <mesh
             name={`flow-active-${i}`}
             geometry={part.active}
@@ -119,6 +125,22 @@ export function FlowVisuals() {
         material={FLOW_MATERIALS.decoderRing}
       >
         <torusGeometry args={[0.17, 0.006, 8, 40]} />
+      </mesh>
+
+      <mesh
+        name="flow-angle-arc"
+        visible={false}
+        position={[
+          FLOW_ANCHORS.pivot.x,
+          FLOW_ANCHORS.pivot.y,
+          FLOW_ANCHORS.pivot.z,
+        ]}
+        rotation={[0, 0, ANGLE_ARC.from]}
+        material={FLOW_MATERIALS.angle}
+      >
+        <torusGeometry
+          args={[ANGLE_ARC.radius, 0.005, 6, 48, ANGLE_ARC.to - ANGLE_ARC.from]}
+        />
       </mesh>
 
       <VirtualArm />

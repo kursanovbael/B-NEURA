@@ -1,6 +1,7 @@
 import { CatmullRomCurve3, Vector3 } from "three";
 import {
   FEEDBACK,
+  SHELL,
   PROCESSING_ORIGIN,
   placementAt,
 } from "./helmet/HelmetGeometry";
@@ -29,6 +30,8 @@ export const HAND = {
 } as const;
 
 const head = new Vector3(0, 0.05, 0);
+/** Middle of the display band at the front of the shell. */
+const visorPoint = toWorld(new Vector3(0, 0.02, SHELL.a * SHELL.scaleZ + 0.02));
 const sensorPad = toWorld(placementAt(deg(40), 0).position);
 const decoder = toWorld(PROCESSING_ORIGIN);
 const feedbackPad = toWorld(
@@ -65,6 +68,7 @@ export const FLOW_ANCHORS = {
   /** Center of the virtual object the raised hand touches. */
   target: objectCenter,
   object: objectCenter,
+  pivot: HAND.pivot,
   /** Elbow, shoulder and torso reference of the minimal virtual body. */
   shoulder: HAND.pivot.clone().add(new Vector3(0, -0.55, 0)),
   /** Hand near its middle when raised. */
@@ -106,7 +110,23 @@ export const FLOW_CURVES: readonly CatmullRomCurve3[] = [
     new Vector3(0.2, -0.2, 0.25),
     new Vector3(0, -0.05, 0),
   ]),
+  // 6 (only in "Seeing is not feeling"): the visual interaction cue, from the
+  // object over the helmet to the display band at the front.
+  new CatmullRomCurve3([
+    objectCenter.clone(),
+    new Vector3(2.0, 0.95, 0.15),
+    new Vector3(0.7, 1.3, 0.1),
+    new Vector3(-0.4, 0.95, 0),
+    visorPoint,
+  ]),
 ];
+
+/** Arc that shows the angle of the virtual arm. Illustrative only. */
+export const ANGLE_ARC = {
+  radius: 0.62,
+  from: HAND.restAngle,
+  to: HAND.raisedAngle,
+} as const;
 
 /** Which kind of line each segment is, for colour. */
 export const FLOW_PATH_KIND = [
@@ -115,6 +135,7 @@ export const FLOW_PATH_KIND = [
   "intention",
   "feedback",
   "feedback",
+  "cue",
 ] as const;
 
 /** Where each numbered label points (world space). Keys match FlowLabelId. */
@@ -127,4 +148,12 @@ export const FLOW_LABEL_ANCHORS = {
   object: objectCenter.clone().add(new Vector3(0.05, 0.3, 0)),
   user: head.clone().add(new Vector3(0, -0.75, 0)),
   feedback: feedbackPad,
+  cue: FLOW_CURVES[5].getPointAt(0.5),
+  kind: objectCenter.clone().add(new Vector3(0.05, 0.3, 0)),
+  // Start of the arc, below the hand, away from the other labels.
+  angle: new Vector3(
+    HAND.pivot.x + ANGLE_ARC.radius * Math.cos(HAND.restAngle),
+    HAND.pivot.y + ANGLE_ARC.radius * Math.sin(HAND.restAngle),
+    HAND.pivot.z,
+  ),
 } as const;

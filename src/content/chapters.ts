@@ -6,7 +6,8 @@ import type { HelmetComponentId } from "./helmetComponents";
  * conceptual. Statements that would be scientific facts are held back or
  * hedged until they are verified (see the claims register).
  */
-export type ChapterId = "arrive" | "gap" | "idea" | "inside" | "flow";
+export type ChapterId =
+  "arrive" | "gap" | "idea" | "inside" | "flow" | "feedback";
 
 export type Chapter = {
   id: ChapterId;
@@ -22,6 +23,11 @@ export const CHAPTERS: readonly Chapter[] = [
   { id: "idea", name: "The idea", anchor: "the-idea" },
   { id: "inside", name: "Inside", anchor: "inside" },
   { id: "flow", name: "How it works", anchor: "how-it-works" },
+  {
+    id: "feedback",
+    name: "Seeing is not feeling",
+    anchor: "seeing-is-not-feeling",
+  },
 ];
 
 export type StopId =
@@ -38,7 +44,9 @@ export type StopId =
   | "part-internal-support"
   | "part-outer-shell"
   | "exploded"
-  | "flow";
+  | "flow"
+  | "compare"
+  | "kinds";
 
 export type Stop = {
   id: StopId;
@@ -163,6 +171,23 @@ export const STOPS: readonly Stop[] = [
     headline: "MOVE HAND",
     body: [
       "A simulation of one intention making a full loop: through the helmet, into a virtual hand, onto a virtual object, and back as a simulated feedback event. Nothing here uses or decodes real signals.",
+    ],
+  },
+  {
+    id: "compare",
+    chapter: "feedback",
+    chapterHeadline: "Seeing is not feeling.",
+    headline: "Two ways information returns",
+    body: [
+      "What is the difference between seeing a virtual action and receiving information back from it? Choose a mode and watch the contact.",
+    ],
+  },
+  {
+    id: "kinds",
+    chapter: "feedback",
+    headline: "What could come back?",
+    body: [
+      "Four kinds of information have been studied. Select one to see how this simulation represents it, and what the research does and does not show.",
     ],
   },
 ];

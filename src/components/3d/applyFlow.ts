@@ -6,7 +6,11 @@ import {
   type Scene,
 } from "three";
 import { FLOW_CURVES, FLOW_PATH_KIND, HAND } from "./flowPaths";
-import { FLOW_PATH_COUNT, type FlowVisuals } from "./flowVisuals";
+import {
+  FLOW_PATH_COUNT,
+  FLOW_ROUTE_COUNT,
+  type FlowVisuals,
+} from "./flowVisuals";
 import {
   ARROW_MATERIALS,
   FLOW_COLORS,
@@ -19,6 +23,8 @@ export type FlowObjects = {
   group: Object3D | null;
   active: (Mesh | null)[];
   mid: (Mesh | null)[];
+  rails: (Mesh | null)[];
+  arc: Mesh | null;
   pulse: Mesh | null;
   hand: Object3D | null;
   fingers: Object3D[];
@@ -38,11 +44,16 @@ export function findFlowObjects(scene: Scene): FlowObjects {
   return {
     group: scene.getObjectByName("flow-visuals") ?? null,
     active: Array.from(
-      { length: FLOW_PATH_COUNT },
+      { length: FLOW_ROUTE_COUNT },
       (_, i) => (scene.getObjectByName(`flow-active-${i}`) as Mesh) ?? null,
     ),
+    rails: Array.from(
+      { length: FLOW_ROUTE_COUNT },
+      (_, i) => (scene.getObjectByName(`flow-rail-${i}`) as Mesh) ?? null,
+    ),
+    arc: (scene.getObjectByName("flow-angle-arc") as Mesh) ?? null,
     mid: Array.from(
-      { length: FLOW_PATH_COUNT },
+      { length: FLOW_ROUTE_COUNT },
       (_, i) => (scene.getObjectByName(`flow-mid-${i}`) as Mesh) ?? null,
     ),
     pulse: (scene.getObjectByName("flow-pulse") as Mesh) ?? null,
@@ -92,7 +103,6 @@ export function applyFlow(
   FLOW_MATERIALS.hand.opacity = weight;
   FLOW_MATERIALS.body.opacity = 0.4 * weight * (1 - 0.75 * close);
   FLOW_MATERIALS.object.opacity = weight;
-  FLOW_MATERIALS.object.emissiveIntensity = 0.7 * visuals.targetResponse;
 
   for (let i = 0; i < FLOW_PATH_COUNT; i++) {
     const frac = visuals.paths[i];
@@ -104,6 +114,20 @@ export function applyFlow(
     if (mid) mid.visible = frac > 0.5;
     ARROW_MATERIALS[i].opacity = weight * (frac >= 0.999 ? 1 : ARROW_DIM);
   }
+
+  // The visual interaction cue is not part of the story route.
+  const cue = visuals.emphasis.cue;
+  objects.active[5]?.geometry.setDrawRange(
+    0,
+    Math.floor(cue * TUBULAR_SEGMENTS) * INDICES_PER_SEGMENT,
+  );
+  const cueMid = objects.mid[5];
+  if (cueMid) cueMid.visible = cue > 0.5;
+  const cueRail = objects.rails[5];
+  if (cueRail) cueRail.visible = cue > 0.01;
+  FLOW_MATERIALS.cue.opacity = weight;
+  ARROW_MATERIALS[5].opacity =
+    weight * (cue > 0.01 ? (cue >= 0.999 ? 1 : ARROW_DIM) : 0);
 
   const pulse = objects.pulse;
   if (pulse) {
@@ -135,11 +159,29 @@ export function applyFlow(
   if (objects.thumb)
     objects.thumb.rotation.z = -0.5 * (curl / FINGER_CURL_REST);
 
+  // The contact ring. The touch and pressure selections change how strongly
+  // it is drawn; nothing about it is a sensation.
+  const { touch, pressure, arc } = visuals.emphasis;
+  const contact = visuals.targetResponse;
+  const ringScale = MathUtils.lerp(
+    MathUtils.lerp(1.15, 1, touch),
+    1.35,
+    pressure,
+  );
+  const ringOpacity = MathUtils.lerp(
+    MathUtils.lerp(0.65, 0.3, touch),
+    0.75,
+    pressure,
+  );
   if (objects.target) {
-    objects.target.scale.setScalar(1 + 0.15 * visuals.targetResponse);
+    objects.target.scale.setScalar(1 + (ringScale - 1) * contact);
   }
-  FLOW_MATERIALS.target.opacity =
-    weight * (0.25 + 0.65 * visuals.targetResponse);
+  FLOW_MATERIALS.target.opacity = weight * (0.25 + ringOpacity * contact);
+  FLOW_MATERIALS.object.emissiveIntensity =
+    0.7 * contact * (1 - 0.4 * touch + 0.4 * pressure);
+
+  if (objects.arc) objects.arc.visible = arc > 0.01;
+  FLOW_MATERIALS.angle.opacity = weight * arc * 0.9;
 
   FLOW_MATERIALS.decoderRing.opacity =
     weight * (0.2 + 0.8 * visuals.decoderGlow);

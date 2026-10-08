@@ -7,9 +7,12 @@ import type {
 } from "@/components/3d/ExperienceDriver";
 import {
   createFlowDriverState,
+  setFlowMode,
   setFlowTarget,
   type FlowDriverState,
 } from "@/components/3d/flowVisuals";
+import { FeedbackCompare } from "@/components/flow/FeedbackCompare";
+import { FeedbackKinds } from "@/components/flow/FeedbackKinds";
 import { FlowControls } from "@/components/flow/FlowControls";
 import { FlowLabels } from "@/components/flow/FlowLabels";
 import { FlowReadout } from "@/components/flow/FlowReadout";
@@ -25,6 +28,7 @@ import type { JourneySource } from "@/components/3d/types";
 import { Container } from "@/components/ui/Container";
 import { Disclaimer } from "@/components/ui/Disclaimer";
 import { CHAPTERS, STOPS, chapterIndexOf } from "@/content/chapters";
+import type { CompareModeId, FeedbackKindId } from "@/content/feedbackKinds";
 import type { HelmetComponentId } from "@/content/helmetComponents";
 import { useFlowSequence } from "@/lib/useFlowSequence";
 import { useInView } from "@/lib/useInView";
@@ -38,6 +42,8 @@ import { TurnControls } from "./TurnControls";
 
 const EXPLODED_INDEX = STOPS.findIndex((stop) => stop.id === "exploded");
 const FLOW_INDEX = STOPS.findIndex((stop) => stop.id === "flow");
+const COMPARE_INDEX = STOPS.findIndex((stop) => stop.id === "compare");
+const KINDS_INDEX = STOPS.findIndex((stop) => stop.id === "kinds");
 const TURN_STEP = 0.45;
 
 /**
@@ -55,6 +61,8 @@ export function ExperienceShell() {
   const [activeStop, setActiveStop] = useState(0);
   const [selected, setSelected] = useState<HelmetComponentId | null>(null);
   const [tick, setTick] = useState(0);
+  const [compareMode, setCompareMode] = useState<CompareModeId>("current");
+  const [kind, setKind] = useState<FeedbackKindId | null>(null);
 
   const stopEls = useRef<(HTMLElement | null)[]>(STOPS.map(() => null));
   const interaction = useRef<Interaction>(createInteraction());
@@ -74,6 +82,7 @@ export function ExperienceShell() {
           observed.current = true;
           const index = Number((entry.target as HTMLElement).dataset.stop);
           setActiveStop(index);
+          if (index !== KINDS_INDEX) setKind(null);
           if (index !== EXPLODED_INDEX) {
             selectComponent(interaction.current, null);
             setSelected(null);
@@ -87,15 +96,34 @@ export function ExperienceShell() {
   }, []);
 
   // The simulated loop belongs to its stop: it rests, and resets, elsewhere.
+  // The two chapters after it keep the same scene, so the loop only resets
+  // once the visitor has left all three.
   const onFlowStop = activeStop === FLOW_INDEX;
+  const onCompare = activeStop === COMPARE_INDEX;
+  const onKinds = activeStop === KINDS_INDEX;
   const sequence = useFlowSequence({ reducedMotion, paused: !onFlowStop });
   const { reset: resetSequence } = sequence;
   useEffect(() => {
-    if (!onFlowStop) resetSequence();
-  }, [onFlowStop, resetSequence]);
+    if (!onFlowStop && !onCompare && !onKinds) resetSequence();
+  }, [onFlowStop, onCompare, onKinds, resetSequence]);
+
+  // Which state of the loop the scene shows. "Seeing is not feeling" holds it
+  // at contact (current VR interaction) or at the returning feedback (concept).
+  const sceneState = onCompare
+    ? compareMode === "concept"
+      ? 6
+      : 5
+    : onKinds
+      ? 6
+      : sequence.snapshot.index;
   useEffect(() => {
-    setFlowTarget(flowDriver.current, sequence.snapshot.index);
-  }, [sequence.snapshot.index]);
+    setFlowTarget(flowDriver.current, sceneState);
+    setFlowMode(flowDriver.current, {
+      cue: onCompare,
+      kind: onKinds ? kind : null,
+      focus: onCompare || onKinds,
+    });
+  }, [sceneState, onCompare, onKinds, kind]);
 
   const activeChapter = chapterIndexOf(STOPS[activeStop].chapter);
 
@@ -155,7 +183,7 @@ export function ExperienceShell() {
     setTick((t) => t + 1);
   }, []);
 
-  const redrawKey = `${activeStop}:${selected ?? ""}:${tick}:${sequence.snapshot.index}`;
+  const redrawKey = `${activeStop}:${selected ?? ""}:${tick}:${sceneState}:${compareMode}:${kind ?? ""}`;
   const freeToTurn = activeStop === 0 || activeStop === EXPLODED_INDEX;
 
   return (
@@ -181,7 +209,9 @@ export function ExperienceShell() {
           onSelect={select}
         />
       ) : null}
-      {!unavailable ? <FlowLabels flowLabelEls={flowLabelEls} /> : null}
+      {!unavailable ? (
+        <FlowLabels flowLabelEls={flowLabelEls} kind={kind} />
+      ) : null}
       <ExperienceNav
         activeChapter={activeChapter}
         onGoToChapter={goToChapter}
@@ -199,8 +229,12 @@ export function ExperienceShell() {
             selected={selected}
             onSelect={select}
             onGoToStop={goToStop}
-            flowPanel={
-              stop.id === "flow" ? (
+            panel={
+              stop.id === "compare" ? (
+                <FeedbackCompare mode={compareMode} onChange={setCompareMode} />
+              ) : stop.id === "kinds" ? (
+                <FeedbackKinds selected={kind} onSelect={setKind} />
+              ) : stop.id === "flow" ? (
                 <div className="flex flex-col gap-4">
                   <FlowControls
                     snapshot={sequence.snapshot}

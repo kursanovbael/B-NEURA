@@ -17,6 +17,7 @@ export const FLOW_COLORS = {
   signal: new Color("#22d3ee"),
   intention: new Color("#f4efe6"),
   feedback: new Color("#a8e4f0"),
+  cue: new Color("#9aa6b2"),
 } as const;
 
 /** One arrowhead material per route segment, so each can brighten on its own. */
@@ -26,6 +27,7 @@ export const ARROW_MATERIALS = [
   basic("#f4efe6"),
   basic("#a8e4f0"),
   basic("#a8e4f0"),
+  basic("#9aa6b2"),
 ] as const;
 
 export const FLOW_MATERIALS = {
@@ -36,6 +38,8 @@ export const FLOW_MATERIALS = {
   pulse: basic("#22d3ee"),
   target: basic("#f4efe6"),
   decoderRing: basic("#a78bfa"),
+  cue: basic("#9aa6b2"),
+  angle: basic("#b8c2cc"),
   object: new MeshStandardMaterial({
     color: "#8d96a3",
     emissive: "#a8e4f0",

@@ -17,7 +17,7 @@ type StopBlockProps = {
   onGoToStop: (index: number) => void;
   setRef: (el: HTMLElement | null) => void;
   /** Simulated-flow controls and captions, for the flow stop only. */
-  flowPanel?: ReactNode;
+  panel?: ReactNode;
 };
 
 /**
@@ -31,7 +31,7 @@ export function StopBlock({
   onSelect,
   onGoToStop,
   setRef,
-  flowPanel,
+  panel,
 }: StopBlockProps) {
   const chapter = CHAPTERS[chapterIndexOf(stop.chapter)];
   const isChapterStart =
@@ -39,7 +39,8 @@ export function StopBlock({
   const headingId = `stop-${stop.id}`;
   const isHero = stop.id === "hero";
   const isExploded = stop.id === "exploded";
-  const isFlow = stop.id === "flow";
+  const isFlow =
+    stop.id === "flow" || stop.id === "compare" || stop.id === "kinds";
   const nextStop = STOPS[index + 1];
 
   return (
@@ -132,7 +133,7 @@ export function StopBlock({
             />
           ) : null}
 
-          {flowPanel}
+          {panel}
 
           {isExploded ? (
             <ExplodedExplorer selected={selected} onSelect={onSelect} />

@@ -1,3 +1,4 @@
+import type { FeedbackKindId } from "@/content/feedbackKinds";
 import { clamp01, smoothstep } from "./experience";
 
 /**
@@ -18,7 +19,10 @@ export type FlowLabelId =
   | "hand"
   | "object"
   | "feedback"
-  | "user";
+  | "user"
+  | "cue"
+  | "kind"
+  | "angle";
 
 export const FLOW_LABEL_IDS: readonly FlowLabelId[] = [
   "intention",
@@ -29,10 +33,41 @@ export const FLOW_LABEL_IDS: readonly FlowLabelId[] = [
   "object",
   "feedback",
   "user",
+  "cue",
+  "kind",
+  "angle",
 ];
 
 /** The five route segments, in order. */
 export const FLOW_PATH_COUNT = 5;
+/** The five story segments plus the visual cue used by "Seeing is not feeling". */
+export const FLOW_ROUTE_COUNT = 6;
+
+/**
+ * Emphasis used by the chapters that explain what returns. Every value eases
+ * between 0 and 1 and is zero in the flow chapter itself.
+ */
+export type FlowEmphasis = {
+  /** The gray visual interaction cue from the object to the display band. */
+  cue: number;
+  touch: number;
+  pressure: number;
+  /** The arm-angle arc (position / proprioception, illustrative). */
+  arc: number;
+  /** The temperature selection: nothing is simulated, a pending marker shows. */
+  temperature: number;
+  /** Fades the labels of the earlier story steps. */
+  focus: number;
+};
+
+export const NO_EMPHASIS: FlowEmphasis = {
+  cue: 0,
+  touch: 0,
+  pressure: 0,
+  arc: 0,
+  temperature: 0,
+  focus: 0,
+};
 
 export type FlowVisuals = {
   /** 0 to 1 progress along each of the five route segments. */
@@ -49,13 +84,18 @@ export type FlowVisuals = {
   targetResponse: number;
   /** Visibility of the "represented intention" tag. */
   represented: number;
+  /** Eased emphasis values, zero in the flow chapter. */
+  emphasis: FlowEmphasis;
   /** Which label is the one in focus right now. */
   active: Record<FlowLabelId, boolean>;
 };
 
 const s = (x: number) => smoothstep(clamp01(x));
 
-export function flowVisuals(f: number): FlowVisuals {
+export function flowVisuals(
+  f: number,
+  emphasis: FlowEmphasis = NO_EMPHASIS,
+): FlowVisuals {
   const paths = [
     s(f),
     s(f - 1),
@@ -83,6 +123,7 @@ export function flowVisuals(f: number): FlowVisuals {
     handRaise: s(f - 3.5),
     targetResponse: s((f - 4.5) * 2),
     represented: s(f - 2),
+    emphasis,
     active: {
       intention: step === 0,
       sensors: step === 1,
@@ -92,6 +133,9 @@ export function flowVisuals(f: number): FlowVisuals {
       object: step === 5,
       feedback: step === 6,
       user: step === 6,
+      cue: true,
+      kind: true,
+      angle: true,
     },
   };
 }
@@ -105,29 +149,63 @@ export function contactFocus(f: number): number {
   return s(f - 3) * (1 - s(f - 5));
 }
 
+/** What the chapters that explain what returns ask the scene to show. */
+export type FlowMode = {
+  cue: boolean;
+  kind: FeedbackKindId | null;
+  /** Fades the labels of the earlier story steps. */
+  focus: boolean;
+};
+
+export const FLOW_MODE_OFF: FlowMode = { cue: false, kind: null, focus: false };
+
 /** State the frame loop keeps between frames. Plain object in a ref. */
 export type FlowDriverState = {
   /** Index of the state the page is in. */
   target: number;
   /** Eased position the visuals are drawn at. */
   shown: number;
+  mode: FlowMode;
+  emphasis: FlowEmphasis;
 };
 
 /** States travelled per second. */
 const TRAVEL_SPEED = 1.25;
+/** Rate (1/s) at which the emphasis values ease. */
+const EMPHASIS_RATE = 8;
 
 export function createFlowDriverState(): FlowDriverState {
-  return { target: 0, shown: 0 };
+  return {
+    target: 0,
+    shown: 0,
+    mode: FLOW_MODE_OFF,
+    emphasis: { ...NO_EMPHASIS },
+  };
 }
 
 export function setFlowTarget(state: FlowDriverState, index: number) {
   state.target = index;
 }
 
+export function setFlowMode(state: FlowDriverState, mode: FlowMode) {
+  state.mode = mode;
+}
+
+function emphasisTargets(mode: FlowMode): FlowEmphasis {
+  return {
+    cue: mode.cue ? 1 : 0,
+    touch: mode.kind === "touch" ? 1 : 0,
+    pressure: mode.kind === "pressure" ? 1 : 0,
+    arc: mode.kind === "proprioception" ? 1 : 0,
+    temperature: mode.kind === "temperature" ? 1 : 0,
+    focus: mode.focus ? 1 : 0,
+  };
+}
+
 /**
  * Moves the drawn position toward the page state at a fixed speed. Going
  * backwards (reset, or run again) never replays the loop in reverse: it jumps
- * to just before the target.
+ * to just before the target. The emphasis values ease toward the mode.
  */
 export function stepFlow(
   state: FlowDriverState,
@@ -140,5 +218,14 @@ export function stepFlow(
     state.shown = Math.max(0, state.target - 1);
   } else {
     state.shown = Math.min(state.target, state.shown + TRAVEL_SPEED * delta);
+  }
+
+  const targets = emphasisTargets(state.mode);
+  const ease = instant ? 1 : 1 - Math.exp(-EMPHASIS_RATE * delta);
+  for (const key of Object.keys(targets) as (keyof FlowEmphasis)[]) {
+    const next =
+      state.emphasis[key] + (targets[key] - state.emphasis[key]) * ease;
+    state.emphasis[key] =
+      Math.abs(targets[key] - next) < 1e-3 ? targets[key] : next;
   }
 }
