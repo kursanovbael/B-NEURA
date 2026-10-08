@@ -1,23 +1,190 @@
 @import "tailwindcss";
 
-:root {
-  --background: #05070a;
-  --foreground: #ffffff;
-  color-scheme: dark;
-}
+/*
+ * B-NEURA design tokens.
+ * Colors, radii, shadows, easing and container width are Tailwind theme
+ * tokens (usable as bg-surface, text-muted, rounded-md, ease-emphasized ...).
+ * Motion durations are plain CSS variables so they can be zeroed for
+ * prefers-reduced-motion in one place.
+ */
+@theme {
+  /* Color: restrained palette */
+  --color-background: #05070a;
+  --color-surface: #0b1017;
+  --color-surface-raised: #111923;
+  --color-border: #1b2733;
+  --color-border-strong: #2b3a4a;
+  --color-foreground: #f4f7fa;
+  --color-muted: #94a3b8;
+  --color-accent: #22d3ee; /* electric cyan */
+  --color-accent-dim: #0e7490;
+  --color-violet: #a78bfa; /* secondary accent */
+  --color-violet-dim: #6d4fd6;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Semantic colors: status, warning, verification only */
+  --color-status-ok: #4ade80;
+  --color-status-warn: #f5b544;
+
+  /* Typography: swap these when final self-hosted fonts are chosen */
   --font-sans:
     system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
+  --font-display: var(--font-sans);
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.875rem;
+
+  /* Shadows: subtle only */
+  --shadow-raised:
+    0 1px 0 0 rgb(255 255 255 / 0.03) inset, 0 12px 32px -16px rgb(0 0 0 / 0.8);
+  --shadow-glow-accent: 0 0 28px -10px rgb(34 211 238 / 0.45);
+  --shadow-glow-violet: 0 0 28px -10px rgb(167 139 250 / 0.4);
+
+  /* Easing */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Layout */
+  --container-page: 76rem;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+:root {
+  /* Motion durations (zeroed under prefers-reduced-motion) */
+  --duration-instant: 80ms;
+  --duration-fast: 160ms;
+  --duration-base: 280ms;
+  --duration-slow: 520ms;
+  --duration-cinematic: 900ms;
+
+  /* Spacing conventions beyond the default Tailwind scale */
+  --space-section: clamp(4.5rem, 10vw, 9rem);
+  --space-gutter: clamp(1.25rem, 4vw, 2.5rem);
+
+  --focus-ring: 2px solid var(--color-accent);
+
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0.01ms;
+    --duration-fast: 0.01ms;
+    --duration-base: 0.01ms;
+    --duration-slow: 0.01ms;
+    --duration-cinematic: 0.01ms;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Typography scale */
+@utility type-display {
+  font-family: var(--font-display);
+  font-size: clamp(3.25rem, 9vw, 7.5rem);
+  font-weight: 600;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+@utility type-hero {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+@utility type-section {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.6vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+@utility type-body-lg {
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  line-height: 1.6;
+}
+
+@utility type-body {
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+@utility type-technical {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+@utility type-meta {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+@utility type-label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Page container with responsive gutters */
+@utility container-page {
+  width: 100%;
+  max-width: var(--container-page);
+  margin-inline: auto;
+  padding-inline: var(--space-gutter);
+}
+
+@utility transition-ui {
+  transition-property:
+    color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard);
+}
+
+@layer base {
+  html {
+    background: var(--color-background);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    /* clip (not hidden) so normal page scrolling is never blocked */
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: rgb(34 211 238 / 0.28);
+    color: var(--color-foreground);
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
 }

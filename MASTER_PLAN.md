@@ -297,7 +297,9 @@ The primary visual object, labeled **CONCEPT PROTOTYPE**.
 
 Layers: VR display; neural sensing layer; signal processing layer; communication layer; conceptual feedback layer; battery / processing hardware.
 
-Interaction: scroll-position-driven exploded view, built with SVG/CSS/Framer Motion. Normal page scrolling is never hijacked. A non-scroll alternative (buttons / keyboard) exists. Each layer shows NAME, FUNCTION, and TECHNOLOGY STATUS using the shared maturity model. The complete helmet is never implied to exist.
+Interaction: a real-time 3D helmet (Three.js + React Three Fiber, see section 16.3) that responds to scroll position. The planned experience includes cinematic camera movement, scroll-driven transformations, external shell separation, an exploded view, a cutaway / internal view, conceptual component visualization, and (later) data-flow visualization, and may transition from the physical helmet to a neural-interface and virtual-body view. Normal page scrolling is never hijacked. A non-scroll alternative (buttons / keyboard) and a non-WebGL fallback exist. Each layer shows NAME, FUNCTION, and TECHNOLOGY STATUS using the shared maturity model. The complete helmet is never implied to exist. All 3D content stays conceptual; labels must not imply real hardware or real neural measurement.
+
+Phase 1 only establishes the 3D foundation (architecture and a simple placeholder). The complete NeuroHelmet is built in Phase 4.
 
 ### Section 05 — How It Works
 
@@ -328,7 +330,7 @@ A browser-based 3D/interactive simulation of a virtual environment with a virtua
 - Deterministic and reliable for a classroom presentation: scripted behavior, no randomness that could break a live demo.
 - Visually communicates the pipeline: USER INTENTION ("Move right hand", simulated) → BCI SIGNAL → AI DECODER → VIRTUAL HAND → OBJECT INTERACTION.
 - Pointer/keyboard input is presented as VIRTUAL CONTROL, labeled SIMULATION.
-- Rendering technology (SVG/CSS/Canvas versus Three.js) is decided in Phase 6 and must justify itself (see section 16).
+- Rendering technology is decided in Phase 6. Three.js + React Three Fiber are approved and expected to be reused through the shared single-canvas architecture (see section 16.3); SVG/CSS remain acceptable where sufficient.
 
 ### Section 07 — Sensory Feedback
 
@@ -484,7 +486,8 @@ Every major interaction has a purpose; do not add interactions because they look
 - **npm** as package manager
 - **Framer Motion** — added in the first phase that needs it, not in Phase 0
 - **Lucide icons** — added when first needed
-- **Three.js / React Three Fiber** — NOT installed in Phase 0. Evaluated later only if 2D/SVG cannot provide the desired experience (see 16.3).
+- **Three.js + React Three Fiber** — approved for the 3D experience; installed in Phase 1 (`three`, `@react-three/fiber`, `@types/three`).
+- **`@react-three/drei`** — NOT installed. Add only when a later phase needs its helpers, with phase-specific justification.
 
 Use the current stable versions available at initialization time unless there is a compatibility reason not to. Record the exact versions chosen in the Phase 0 report. Do not add unnecessary dependencies.
 
@@ -497,11 +500,28 @@ Use the current stable versions available at initialization time unless there is
 
 ### 16.3 3D and rendering policy
 
-- Start with SVG / CSS / Framer Motion-style techniques. Do not assume a 3D model is required.
-- NeuroHelmet (Phase 4): SVG/CSS/Framer Motion.
-- VR Demo (Phase 6): choose the lightest technique that delivers the experience; introducing Three.js / R3F requires a short written justification and user approval.
-- If WebGL is ever used: at most one WebGL context at a time, lazy-loaded, paused when off-screen, with a static fallback.
-- WebXR is explicitly OUT OF SCOPE.
+**Direction (approved):** B-NEURA is a cinematic, interactive scientific experience. Three.js is approved for the 3D experience and React Three Fiber (R3F) is the approved React integration layer. The NeuroHelmet is a central interactive visual element.
+
+**Planned experience (built across later phases, not Phase 1):** cinematic 3D camera movement; scroll-driven transformations; external shell separation; exploded view; cutaway / internal view; conceptual component visualization; future data-flow visualization; and eventually an interactive browser-based VR concept / demo (not WebXR).
+
+**Rules:**
+
+- Prefer a **single reusable WebGL canvas**. Avoid multiple WebGL contexts.
+- The canvas is lazy-loaded, pauses rendering when off-screen, and avoids heavy post-processing, heavy particle systems, and high-poly geometry.
+- 3D animation lives in the R3F / Three.js layer; simple UI motion uses CSS.
+- Do not hijack global page scrolling. The 3D scene reads a single typed `ExperienceProgress` (progress 0–1 plus phase) so scroll can drive it later.
+- **Reduced motion is mandatory:** automatic rotation, cinematic camera motion, and scroll-driven animation can be disabled.
+- **A non-WebGL fallback is required:** descriptive text plus a static representation, never a blank canvas. Every 3D view has a text equivalent and an accessible name.
+- **Offline:** no external CDN, environment-map, font, or model loading for the core presentation. Any 3D asset is stored in the repository.
+- **WebXR remains OUT OF SCOPE** unless explicitly approved later.
+- Do not add further 3D libraries without phase-specific justification.
+- The 3D experience stays conceptual and scientifically honest (sections 8 and 9 apply to 3D labels and visuals).
+
+**Status:**
+
+- Phase 1 delivered only the foundation: the single-canvas architecture under `src/components/3d/` and a simple procedural placeholder. The complete NeuroHelmet is NOT part of Phase 1.
+- Phase 4 builds the real NeuroHelmet on this foundation.
+- Phase 6 builds the VR demo (still not WebXR) and decides its rendering approach within these rules.
 
 ### 16.4 Presentation environment
 
@@ -536,6 +556,7 @@ b-neura/
     │   │   ├── Disclaimer
     │   │   └── VirtualHand       # shared by VRDemo and Embodiment
     │   ├── layout/       # SiteHeader / navigation, SiteFooter
+    │   ├── 3d/           # shared 3D foundation: canvas, scene, camera rig, environment, types
     │   ├── Hero/
     │   ├── Problem/
     │   ├── Idea/
@@ -731,7 +752,7 @@ Problem section, Idea section, technology cards. STOP.
 
 ### Phase 4 — NeuroHelmet
 
-SVG/CSS/Framer Motion helmet visualization, layers, labels, interactions, scroll-linked animation (no scroll hijacking), keyboard alternative, reduced-motion version. Uses `MaturityBadge`. STOP.
+Real-time 3D NeuroHelmet built on the Phase 1 foundation (Three.js + R3F): layers, labels, cinematic camera, scroll-linked shell separation, exploded and cutaway views, conceptual component visualization, keyboard alternative, reduced-motion version, and non-WebGL fallback. No scroll hijacking. Uses `MaturityBadge`. STOP.
 
 ### Phase 5 — System Flow
 
@@ -739,7 +760,7 @@ BCI, AI decoder, virtual body, VR, feedback, animated signal, START SIGNAL. Crea
 
 ### Phase 6 — VR Demo
 
-Browser-based simulated environment (not WebXR), pointer/keyboard control, deterministic behavior, creates the shared `VirtualHand`. Rendering technology decision documented. STOP.
+Browser-based simulated environment (not WebXR), pointer/keyboard control, deterministic behavior, creates the shared `VirtualHand`. Reuses the single-canvas 3D architecture where 3D is used. Rendering decision documented. STOP.
 
 ### Phase 7 — Sensory Feedback
 

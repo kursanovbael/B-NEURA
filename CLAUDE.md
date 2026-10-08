@@ -137,13 +137,22 @@ Do not create shortened or alternative disclaimer wording.
 - **Package name:** `b-neura` (lowercase). The GitHub repository remains `B-NEURA`.
 - **Stack:** Next.js (App Router), TypeScript, Tailwind CSS, ESLint, npm. Use current stable versions at initialization unless there is a compatibility reason not to, and record the versions used.
 - **Later, only when a phase needs them:** Framer Motion, Lucide icons.
-- **Not in Phase 0:** Three.js, React Three Fiber, Framer Motion, Lucide.
+- **3D stack (approved):** Three.js + React Three Fiber (`three`, `@react-three/fiber`, `@types/three`), installed in Phase 1.
+- **`@react-three/drei`:** not installed. Add it only when a later phase actually needs its helpers.
 - **No unnecessary dependencies.** Before adding one, consider whether existing tools suffice.
 - **Fonts:** self-hosted / locally bundled (for example `next/font/local`). No runtime external font fetching. Until Phase 1, use a system font stack.
 - **Offline:** the core demo and Presentation Mode must work without internet. No fragile network dependencies.
 - **VR Demo:** a browser-based 3D/interactive simulation using pointer and keyboard. It is NOT WebXR and need not work in a headset. WebXR is out of scope unless the user later requests it. The demo must be deterministic and reliable.
-- **NeuroHelmet:** start with SVG / CSS / Framer Motion. Do not assume a 3D model is required.
-- **3D rule:** use CSS, SVG, Framer Motion, or plain React whenever sufficient. Introduce Three.js / R3F only if 2D/SVG cannot provide the experience, with a written justification and user approval. If WebGL is used: one context at a time, lazy-loaded, paused off-screen, with a static fallback.
+- **NeuroHelmet:** a central interactive visual element, built as a real-time 3D experience (Three.js + R3F). The complete helmet is built in Phase 4; Phase 1 only established the foundation and a simple placeholder.
+- **3D rules:**
+  - 3D is a core part of the B-NEURA experience, so use Three.js + R3F for it. CSS / SVG / plain React remain right for ordinary UI and simple motion.
+  - Use one primary WebGL canvas architecture. Do not create unnecessary additional WebGL contexts.
+  - Lazy-load the canvas and pause rendering when it is off-screen. Avoid heavy post-processing, particle systems, and high-poly geometry.
+  - Do not add further 3D libraries without phase-specific justification.
+  - Do not use WebXR unless the user explicitly approves it.
+  - Do not load external models, environment maps, or CDN assets for the core experience; everything works offline.
+  - Respect `prefers-reduced-motion` and always provide a non-WebGL fallback and a text equivalent.
+  - Keep the 3D experience conceptual and scientifically honest: no labels or visuals implying real hardware or real neural measurement (see sections 8 and 9).
 
 ---
 
