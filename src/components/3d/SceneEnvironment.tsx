@@ -1,23 +1,27 @@
 /**
- * Dark environment and restrained lighting. No HDR/environment files, so
- * nothing is fetched at runtime.
+ * Cinematic but restrained lighting: soft key, cool rim, violet fill and a low
+ * hemisphere fill so dark surfaces stay readable against the dark background.
+ * No HDR/environment files, so nothing is fetched at runtime.
  */
 export function SceneEnvironment() {
   return (
     <>
       <color attach="background" args={["#05070a"]} />
-      <ambientLight intensity={0.7} />
-      <directionalLight position={[3, 4, 5]} intensity={1.6} color="#e6f4ff" />
+      <hemisphereLight args={["#2d3f58", "#05070a", 0.9]} />
+      <ambientLight intensity={0.25} />
+      {/* key */}
+      <directionalLight position={[3, 4, 4]} intensity={2.4} color="#f2f7ff" />
+      {/* rim */}
       <directionalLight
-        position={[-4, 1, -3]}
-        intensity={1.1}
-        color="#a78bfa"
+        position={[-4, 2.5, -3.5]}
+        intensity={3}
+        color="#7fe9ff"
       />
-      <pointLight
-        position={[0, 0.2, 0]}
-        intensity={0.8}
-        color="#22d3ee"
-        distance={4}
+      {/* fill */}
+      <directionalLight
+        position={[-3.5, -0.5, 2.5]}
+        intensity={0.9}
+        color="#a78bfa"
       />
     </>
   );

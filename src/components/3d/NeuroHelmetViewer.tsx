@@ -7,9 +7,10 @@ import { useInView } from "@/lib/useInView";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { isWebGLAvailable } from "@/lib/webgl";
 import { CanvasErrorBoundary } from "./CanvasErrorBoundary";
+import type { CameraPoseId } from "./CameraRig";
+import { ALL_LAYERS_VISIBLE, type HelmetLayerVisibility } from "./helmet";
 import { HELMET_LAYERS } from "./helmetLayers";
 import { NeuroHelmetFallback } from "./NeuroHelmetFallback";
-import type { ExperienceProgress } from "./types";
 
 const NeuroHelmetCanvas = dynamic(() => import("./NeuroHelmetCanvas"), {
   ssr: false,
@@ -19,14 +20,18 @@ const NeuroHelmetCanvas = dynamic(() => import("./NeuroHelmetCanvas"), {
 const noopSubscribe = () => () => {};
 
 type NeuroHelmetViewerProps = {
-  experience: ExperienceProgress;
+  visibleLayers?: HelmetLayerVisibility;
+  cameraPose?: CameraPoseId;
 };
 
 /**
  * Accessible wrapper around the lazy 3D canvas: labeled image region, text
  * equivalent of the concept, and a static fallback when WebGL is unavailable.
  */
-export function NeuroHelmetViewer({ experience }: NeuroHelmetViewerProps) {
+export function NeuroHelmetViewer({
+  visibleLayers = ALL_LAYERS_VISIBLE,
+  cameraPose = "default",
+}: NeuroHelmetViewerProps) {
   const descriptionId = useId();
   const stageRef = useRef<HTMLDivElement>(null);
   const inView = useInView(stageRef);
@@ -48,9 +53,9 @@ export function NeuroHelmetViewer({ experience }: NeuroHelmetViewerProps) {
       <div
         ref={stageRef}
         role="img"
-        aria-label="3D concept view of the NeuroHelmet, a conceptual prototype shown as simple placeholder geometry."
+        aria-label="3D concept view of the NeuroHelmet, a conceptual prototype. A translucent outer shell surrounds sensor, processing, feedback and support layers around an abstract head volume."
         aria-describedby={descriptionId}
-        className="border-border bg-surface relative aspect-video w-full overflow-hidden rounded-lg border"
+        className="border-border bg-surface relative aspect-[4/3] w-full overflow-hidden rounded-lg border sm:aspect-video"
       >
         {unavailable ? (
           fallback
@@ -59,7 +64,8 @@ export function NeuroHelmetViewer({ experience }: NeuroHelmetViewerProps) {
         ) : (
           <CanvasErrorBoundary fallback={fallback}>
             <NeuroHelmetCanvas
-              experience={experience}
+              visibleLayers={visibleLayers}
+              cameraPose={cameraPose}
               reducedMotion={reducedMotion}
               active={inView}
               onContextLost={() => setContextLost(true)}
@@ -72,8 +78,11 @@ export function NeuroHelmetViewer({ experience }: NeuroHelmetViewerProps) {
       </div>
       <figcaption id={descriptionId} className="type-meta flex flex-col gap-3">
         <p>
-          A conceptual NeuroHelmet drawn as simple placeholder geometry,
-          separated into layers. It does not depict existing hardware.
+          A conceptual NeuroHelmet shown as a procedural 3D model with a
+          translucent outer shell and several inner layers around an abstract
+          head volume. It illustrates a possible future concept, does not depict
+          existing hardware, and its placement and proportions are illustrative
+          only.
         </p>
         <ul className="grid gap-x-8 gap-y-2 sm:grid-cols-2">
           {HELMET_LAYERS.map((layer) => (

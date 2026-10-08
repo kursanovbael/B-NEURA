@@ -1,4 +1,5 @@
-import { ExperienceDemo } from "@/components/3d/ExperienceDemo";
+import { HelmetInspector } from "@/components/3d/HelmetInspector";
+import { NeuroHelmetViewer } from "@/components/3d/NeuroHelmetViewer";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
@@ -29,7 +30,7 @@ const CLASSIFICATIONS: Classification[] = [
 ];
 
 /**
- * Phase 1 verification page: design system + 3D foundation.
+ * Phase 2 review page: design system + NeuroHelmet prototype.
  * Temporary; replaced by the real Hero in Phase 2. Contains no site content.
  */
 export default function Home() {
@@ -37,7 +38,7 @@ export default function Home() {
     <Container className="flex flex-col gap-[var(--space-section)] py-16">
       <SectionHeading
         level={1}
-        eyebrow="Phase 1 · Design system & 3D foundation"
+        eyebrow="Phase 2 · NeuroHelmet 3D prototype"
         title="B-NEURA"
         description="Technical verification page. Not the final website."
       />
@@ -116,11 +117,16 @@ export default function Home() {
         <SectionHeading
           level={2}
           id="3d"
-          eyebrow="3D foundation"
-          title="Placeholder NeuroHelmet"
-          description="Simple procedural geometry used to verify the 3D architecture."
+          eyebrow="3D prototype"
+          title="NeuroHelmet concept"
+          description="Procedural conceptual model for visual review."
         />
-        <ExperienceDemo />
+        {/* Inspector controls are development-only; production shows the helmet alone. */}
+        {process.env.NODE_ENV === "development" ? (
+          <HelmetInspector />
+        ) : (
+          <NeuroHelmetViewer />
+        )}
       </section>
     </Container>
   );

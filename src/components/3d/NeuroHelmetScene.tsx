@@ -2,37 +2,35 @@
 
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
-import { CameraRig } from "./CameraRig";
-import { HelmetPlaceholder } from "./HelmetPlaceholder";
+import { CAMERA_POSES, CameraRig, type CameraPoseId } from "./CameraRig";
+import { NeuroHelmet, type HelmetLayerVisibility } from "./helmet";
 import { SceneEnvironment } from "./SceneEnvironment";
-import type { ExperienceProgress } from "./types";
 
 type NeuroHelmetSceneProps = {
-  experience: ExperienceProgress;
+  visibleLayers: HelmetLayerVisibility;
+  cameraPose: CameraPoseId;
   reducedMotion: boolean;
 };
 
-/**
- * Composes camera, environment and helmet. Reads a single ExperienceProgress,
- * so scroll-driven behavior can later be added without touching the parts.
- */
+/** Composes camera, environment and helmet. */
 export function NeuroHelmetScene({
-  experience,
+  visibleLayers,
+  cameraPose,
   reducedMotion,
 }: NeuroHelmetSceneProps) {
   const invalidate = useThree((state) => state.invalidate);
 
-  // With reduced motion the canvas renders on demand; redraw on progress change.
+  // With reduced motion the canvas renders on demand; redraw on any change.
   useEffect(() => {
     invalidate();
-  }, [experience.progress, invalidate]);
+  }, [visibleLayers, cameraPose, invalidate]);
 
   return (
     <>
-      <CameraRig />
+      <CameraRig pose={CAMERA_POSES[cameraPose]} />
       <SceneEnvironment />
-      <HelmetPlaceholder
-        progress={experience.progress}
+      <NeuroHelmet
+        visibleLayers={visibleLayers}
         reducedMotion={reducedMotion}
       />
     </>
