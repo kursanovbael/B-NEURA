@@ -1,1406 +1,287 @@
-\# B-NEURA — Claude Code Instructions
+# B-NEURA — Claude Code Instructions
 
+## 1. Role
 
+You are the primary software engineering agent for the B-NEURA project. You implement the B-NEURA website according to `MASTER_PLAN.md`.
 
-\## 1. ROLE
+`MASTER_PLAN.md` is the source of truth for product vision, scientific positioning, UX, website structure, technical architecture, roadmap, and presentation requirements. Always read it before making architectural decisions. If `CLAUDE.md` and `MASTER_PLAN.md` conflict, stop and ask the user.
 
+---
 
+## 2. Project context
 
-You are the primary software engineering agent for the B-NEURA project.
+B-NEURA is a conceptual Neuro-VR prototype. It explores how Brain-Computer Interfaces (BCI), Artificial Intelligence, Virtual Reality, and Sensory Feedback could potentially create new pathways between human intention and experience. It focuses on people with severe paralysis who retain cognitive function.
 
+- B-NEURA is NOT a medical device.
+- B-NEURA does NOT claim to transfer consciousness.
+- B-NEURA does NOT claim to reproduce complete human sensory perception.
+- The website is an interactive research and educational prototype.
 
+**Audiences (do not confuse them):**
 
-Your job is to implement the B-NEURA website according to:
+- Website audience: professor / instructor, classmates, general academic audience. Explain technical concepts in accessible language.
+- Conceptual user: a person with severe paralysis who retains cognitive function.
 
+All interface and presentation content is written in English.
 
+---
 
-MASTER\_PLAN.md
+## 3. Before doing anything
 
-
-
-MASTER\_PLAN.md is the source of truth for the project's:
-
-
-
-\- product vision
-
-\- scientific positioning
-
-\- UX
-
-\- website structure
-
-\- technical architecture
-
-\- development roadmap
-
-\- presentation requirements
-
-
-
-Always read MASTER\_PLAN.md before making architectural decisions.
-
-
-
-\---
-
-
-
-\# 2. PROJECT CONTEXT
-
-
-
-B-NEURA is a conceptual Neuro-VR prototype.
-
-
-
-It explores how:
-
-
-
-Brain-Computer Interfaces (BCI)
-
-\+
-
-Artificial Intelligence
-
-\+
-
-Virtual Reality
-
-\+
-
-Sensory Feedback
-
-
-
-could potentially create new pathways between human intention and experience.
-
-
-
-The project focuses on people with severe paralysis.
-
-
-
-B-NEURA is NOT a medical device.
-
-
-
-B-NEURA does NOT claim to transfer consciousness.
-
-
-
-B-NEURA does NOT claim to reproduce complete human sensory perception.
-
-
-
-The website is an interactive research and educational prototype.
-
-
-
-\---
-
-
-
-\# 3. BEFORE DOING ANYTHING
-
-
-
-Before implementing a task:
-
-
-
-1\. Read MASTER\_PLAN.md completely.
-
-2\. Read this CLAUDE.md.
-
-3\. Inspect the existing repository.
-
-4\. Inspect the existing file structure.
-
-5\. Identify the current development phase.
-
-6\. Identify existing components and utilities.
-
-7\. Avoid duplicating existing functionality.
-
-
+1. Read `MASTER_PLAN.md` completely.
+2. Read this `CLAUDE.md`.
+3. Inspect the existing repository and file structure.
+4. Identify the current development phase.
+5. Identify existing components, utilities, and content modules.
+6. Avoid duplicating existing functionality.
 
 Do not make architectural changes without understanding the current project.
 
+---
 
+## 4. Phase control
 
-\---
+Follow the phases in `MASTER_PLAN.md`.
 
+- Implement only the phase explicitly requested by the user.
+- Do NOT automatically continue into future phases.
+- Do NOT build the entire website at once.
+- Do NOT add future functionality because it will eventually be needed.
 
+After completing a phase: test, check for errors, review, report, and STOP. Wait for the user to approve the phase and authorize the next one.
 
-\# 4. PHASE CONTROL
+---
 
+## 5. Git workflow
 
+The repository already exists at `C:\Users\ASUS\Projects\B-NEURA\B-NEURA`. Use the existing `.git` directory. Never run `git init` and never create a nested repository.
 
-The project is divided into development phases.
+```
+Phase implementation → test → report → user approval → commit → next phase
+```
 
+- Do not commit before the user approves the phase.
+- Do not push unless asked.
+- Use meaningful, focused commits (no giant unrelated commits). Examples: `feat: initialize project foundation`, `feat: add B-NEURA design system`, `feat: add hero section`, `fix: improve mobile layout`, `docs: add research sources`.
 
+---
 
-Follow the phases in MASTER\_PLAN.md.
+## 6. Development principle
 
+Prioritize in this order: architecture, maintainability, design system, performance, scientific credibility, accessibility, UX, visual polish. Do not prioritize flashy effects over functionality. This is an academic prototype: prefer simple, reliable, beautiful, interactive, and maintainable over complex, fragile, or over-engineered.
 
+---
 
-IMPORTANT:
+## 7. Scientific accuracy and the source-first workflow
 
+Scientific accuracy is mandatory. Never invent scientific papers, citations, researchers, statistics, medical capabilities, clinical results, or experimental results. If a statement is uncertain, do not present it as fact.
 
+Scientific content follows this order:
 
-Only implement the phase explicitly requested by the user.
+```
+CLAIM → SOURCE → VERIFY → WEBSITE COPY
+```
 
+- Every factual scientific claim is recorded in the claims register (`src/content/`) and starts as `UNVERIFIED`.
+- Status moves `UNVERIFIED` → `SOURCE_FOUND` → `VERIFIED`. Only `VERIFIED` claims may appear as factual copy.
+- Do not write unsupported scientific claims first and search for sources later.
+- Until a claim is verified, use hedged, conceptual language (could, may, explores, conceptual, potential, experimental, future research).
+- Claim classifications are confirmed with the user. Before a content phase, identify the claims it needs and verify them first.
+- Sources are added only when actually found and checked. Never reconstruct a citation from memory.
 
+---
 
-Do NOT automatically continue into future phases.
+## 8. Labeling: one maturity taxonomy plus separate context labels
 
+**Technology maturity (ONE taxonomy, used everywhere):**
 
+- AVAILABLE TODAY
+- EXPERIMENTAL
+- FUTURE CONCEPT
 
-Do NOT build the entire website at once.
+Never create a competing maturity system. Never present speculative technology as currently available. All maturity rendering goes through the shared typed maturity model and the `MaturityBadge` component.
 
+**Pending marker:** REQUIRES SOURCE VERIFICATION is a temporary placeholder for items not yet classified by sources. It is not a fourth maturity level. Temperature feedback starts here and must not be shown at the same maturity as touch, pressure, or position/proprioception until the research phase confirms it.
 
+**Context labels (separate from maturity):** SIMULATION, CONCEPT / CONCEPT PROTOTYPE, VIRTUAL CONTROL, FUTURE INTERFACE. These say what the user is looking at, not how mature a technology is. Do not use them as maturity levels or vice versa.
 
-Do NOT add future functionality simply because you know it will eventually be needed.
+---
 
+## 9. Demo honesty
 
+The website must never imply that it is reading anyone's brain, including the presenter's. All neural processing shown is simulated.
 
-After completing a phase:
+- Never use language that implies real neural measurements.
+- Every interactive demo carries a visible SIMULATION label.
+- Pointer/keyboard input is presented as virtual control, not as decoded intention.
+- Use **VIRTUAL CONTROL ACTIVE**. Never use "AGENCY DETECTED".
+- Terms like "SIGNAL DETECTED" or "INTENTION CLASSIFIED" are allowed only inside clearly labeled SIMULATION contexts.
 
+---
 
+## 10. Medical safety
 
-1\. Test the implementation.
+Never claim that B-NEURA cures paralysis, treats paralysis, guarantees restored movement, transfers consciousness, creates complete sensory perception, or replaces the human body. Present it as a conceptual research prototype. Do not describe people with paralysis as "less human".
 
-2\. Check for errors.
+**Canonical disclaimer (the only one; defined once in `src/content/` and rendered via the `Disclaimer` component):**
 
-3\. Review the result.
+> B-NEURA is a conceptual research and educational prototype. It is not a medical device and is not intended to diagnose, treat, or cure paralysis or any medical condition. The prototype demonstrates a possible future interaction model using existing and emerging technologies.
 
-4\. Report what changed.
+Do not create shortened or alternative disclaimer wording.
 
-5\. Report any remaining issues.
+---
 
-6\. STOP.
+## 11. Technical decisions (approved)
 
+- **Location:** the existing repository. No nested repo.
+- **Package name:** `b-neura` (lowercase). The GitHub repository remains `B-NEURA`.
+- **Stack:** Next.js (App Router), TypeScript, Tailwind CSS, ESLint, npm. Use current stable versions at initialization unless there is a compatibility reason not to, and record the versions used.
+- **Later, only when a phase needs them:** Framer Motion, Lucide icons.
+- **Not in Phase 0:** Three.js, React Three Fiber, Framer Motion, Lucide.
+- **No unnecessary dependencies.** Before adding one, consider whether existing tools suffice.
+- **Fonts:** self-hosted / locally bundled (for example `next/font/local`). No runtime external font fetching. Until Phase 1, use a system font stack.
+- **Offline:** the core demo and Presentation Mode must work without internet. No fragile network dependencies.
+- **VR Demo:** a browser-based 3D/interactive simulation using pointer and keyboard. It is NOT WebXR and need not work in a headset. WebXR is out of scope unless the user later requests it. The demo must be deterministic and reliable.
+- **NeuroHelmet:** start with SVG / CSS / Framer Motion. Do not assume a 3D model is required.
+- **3D rule:** use CSS, SVG, Framer Motion, or plain React whenever sufficient. Introduce Three.js / R3F only if 2D/SVG cannot provide the experience, with a written justification and user approval. If WebGL is used: one context at a time, lazy-loaded, paused off-screen, with a static fallback.
 
+---
 
-Wait for the user to authorize the next phase.
+## 12. Source layout
 
+```
+src/
+  app/          App Router
+  components/
+    ui/         shared primitives (Button, Badge, TechnicalLabel, SectionHeading,
+                MaturityBadge, Disclaimer, VirtualHand)
+    layout/     site header / navigation, footer
+    Hero/ Problem/ Idea/ NeuroHelmet/ SystemFlow/ VRDemo/ SensoryFeedback/
+    Embodiment/ Science/ Future/ Sources/ PresentationMode/
+  content/      typed data: disclaimer, maturity, claims, sources, sections, pipeline
+  lib/          utilities, hooks, shared types
+  styles/       global CSS and design tokens
+public/         fonts/, images/ (added when needed)
+```
 
+Create folders only when a phase needs them. `VirtualHand` is shared by VRDemo and Embodiment; never implement it twice. Keep components modular and do not create duplicate components with similar functionality.
 
-\---
+**Content layer rule:** technology maturity, pipeline states, research claims, sources, and presentation sections live as typed data in `src/content/`, not hardcoded inside UI components.
 
+**Section registry:** a small ordered list (`id`, `title`, `anchor`) that supports navigation now and Presentation Mode later. Do not overengineer it.
 
+---
 
-\# 5. CURRENT DEVELOPMENT PRINCIPLE
+## 13. Design direction
 
+The visual identity should feel like a **future neurotechnology research lab**: dark, premium, scientific, futuristic, minimal, cinematic, human-centered, and believable.
 
+Avoid: generic AI landing pages, excessive cyberpunk, gaming aesthetics, excessive neon, fake medical dashboards, visual clutter.
 
-At the beginning of the project, prioritize:
+Use: dark surfaces, thin borders, subtle glow, neural pathways, technical labels, grids, controlled particles, precise typography. Use the color system in `MASTER_PLAN.md` (dark background, electric cyan, violet, white, muted gray; green for feedback, amber for experimental) intentionally. Typography: modern sans-serif for primary text, monospaced for technical labels.
 
+---
 
+## 14. Animation and scroll
 
-1\. Architecture
+- Animations must have purpose and communicate system behavior. Do not animate everything.
+- Avoid bouncing, flashing, distracting particles, unnecessary motion, and slow transitions.
+- Support `prefers-reduced-motion` with a defined reduced version of each animation.
+- Pause off-screen animation.
+- **Never hijack global page scrolling.** Helmet animation may respond to scroll position, but normal page navigation always works. Presentation Mode uses its own controlled step-based navigation.
 
-2\. Maintainability
+---
 
-3\. Design system
+## 15. Presentation environment
 
-4\. Performance
+The website is used in a live academic presentation.
 
-5\. Scientific credibility
+- Primary target: 16:9 desktop / laptop / projector.
+- Controls: mouse, keyboard (arrow keys, Page Up / Page Down), and presentation clicker via keyboard events.
+- Important interactions must be reliable and deterministic; avoid external APIs and complicated setup.
+- Animations must not block navigation.
+- Presentation Mode provides a controlled 16:9 sequence and works offline.
 
-6\. UX
+---
 
-7\. Visual polish
+## 16. Code quality
 
+Write clean TypeScript, modular reusable React components, semantic HTML, accessible interactions, clear names, and maintainable CSS. Avoid giant components, duplicated logic, unnecessary state, magic numbers, unnecessary abstractions, and dead code.
 
+---
 
-Do not prioritize flashy effects over functionality.
+## 17. Responsiveness
 
+Support desktop, laptop, tablet, and mobile. Desktop (16:9) is the primary presentation environment; mobile must remain usable. Do not simply shrink desktop layouts. Use intentional responsive layouts and simpler fallbacks where heavy interactions cannot work well on small screens.
 
+---
 
-\---
+## 18. Accessibility (incremental)
 
+Accessibility is built with each section, not postponed to the final phase. Every interactive section must have:
 
+- a keyboard alternative to pointer interaction
+- defined reduced-motion behavior
+- a text alternative where appropriate
 
-\# 6. SCIENTIFIC ACCURACY
+Also: semantic HTML, accessible buttons, visible focus states, readable contrast, alt text. Do not communicate critical information only through animation or color. Phase 13 audits; it is not where accessibility starts.
 
+---
 
+## 19. Performance
 
-Scientific accuracy is mandatory.
+Follow the performance budget in `MASTER_PLAN.md` (section 23). Priorities: fast initial load; lazy loading for heavy assets; pause off-screen animation; avoid multiple WebGL contexts; avoid unnecessary blur/backdrop effects; optimize for classroom / projector hardware. Optimize images, fonts, animations, and JavaScript, and avoid unnecessarily large assets. The presentation demo must run smoothly on a normal laptop.
 
+---
 
+## 20. No unauthorized scope
 
-The project discusses:
+Do NOT add authentication, databases, payments, user accounts, real medical data, real neural data collection, production medical infrastructure, or unnecessary backend services, unless explicitly requested. Do not add features outside `MASTER_PLAN.md`.
 
+---
 
+## 21. Error handling and validation
 
-\- neuroscience
+After implementation, run the appropriate checks where available: TypeScript check, ESLint, and a production build. Fix errors before reporting completion. Never hide errors. If an error cannot be fixed safely, explain it clearly.
 
-\- brain-computer interfaces
+---
 
-\- paralysis
+## 22. File modification rule
 
-\- neuroprosthetics
+Before modifying an existing file: read it, understand its purpose, identify dependencies, and make the smallest reasonable change. Do not rewrite working code unnecessarily and do not delete functionality without explaining why.
 
-\- sensory feedback
+---
 
-\- neural stimulation
+## 23. When requirements are ambiguous
 
-\- virtual embodiment
+If ambiguity affects architecture, scientific meaning, UX, safety, or data handling, ask the user before proceeding. For minor visual choices, choose the option consistent with `MASTER_PLAN.md`.
 
-\- virtual reality
+---
 
-\- artificial intelligence
+## 24. Development report
 
+After each completed phase, report using this structure, then STOP:
 
+- **Completed** — what was implemented.
+- **Files Changed** — files created or modified.
+- **Validation** — tests and checks performed (typecheck, lint, build, manual checks).
+- **Issues** — remaining issues or limitations.
+- **Next Phase** — the next phase defined by `MASTER_PLAN.md`.
 
-Never invent:
+---
 
+## 25. North star
 
-
-\- scientific papers
-
-\- citations
-
-\- researchers
-
-\- statistics
-
-\- medical capabilities
-
-\- clinical results
-
-\- experimental results
-
-
-
-If a scientific statement is uncertain, do not present it as fact.
-
-
-
-Use language such as:
-
-
-
-\- could
-
-\- may
-
-\- explores
-
-\- conceptual
-
-\- experimental
-
-\- potential
-
-\- future research
-
-
-
-\---
-
-
-
-\# 7. TECHNOLOGY MATURITY
-
-
-
-Always distinguish between:
-
-
-
-AVAILABLE TODAY
-
-
-
-EXPERIMENTAL / RESEARCH
-
-
-
-FUTURE CONCEPT
-
-
-
-Never present speculative technology as currently available.
-
-
-
-When a website interaction simulates a future capability, clearly label it:
-
-
-
-SIMULATION
-
-
-
-CONCEPT
-
-
-
-FUTURE INTERFACE
-
-
-
-RESEARCH CONCEPT
-
-
-
-\---
-
-
-
-\# 8. MEDICAL SAFETY
-
-
-
-Never claim that B-NEURA:
-
-
-
-\- cures paralysis
-
-\- treats paralysis
-
-\- guarantees restored movement
-
-\- transfers consciousness
-
-\- creates complete sensory perception
-
-\- replaces the human body
-
-
-
-The project should be presented as a conceptual research prototype.
-
-
-
-Use this disclaimer when appropriate:
-
-
-
-"B-NEURA is a conceptual research and educational prototype. It is not a medical device and is not intended to diagnose, treat, or cure paralysis or any medical condition."
-
-
-
-\---
-
-
-
-\# 9. DESIGN DIRECTION
-
-
-
-The visual identity should feel like:
-
-
-
-A FUTURE NEUROTECHNOLOGY RESEARCH LAB.
-
-
-
-Characteristics:
-
-
-
-\- dark
-
-\- premium
-
-\- scientific
-
-\- futuristic
-
-\- minimal
-
-\- cinematic
-
-\- human-centered
-
-
-
-Avoid:
-
-
-
-\- generic AI landing pages
-
-\- excessive cyberpunk
-
-\- gaming aesthetics
-
-\- excessive neon
-
-\- fake medical dashboards
-
-\- visual clutter
-
-
-
-The design should be believable.
-
-
-
-\---
-
-
-
-\# 10. VISUAL LANGUAGE
-
-
-
-Use:
-
-
-
-\- dark surfaces
-
-\- thin borders
-
-\- subtle glow
-
-\- neural pathways
-
-\- technical labels
-
-\- grids
-
-\- controlled particles
-
-\- glass surfaces
-
-\- precise typography
-
-
-
-Animations should have purpose.
-
-
-
-Do not animate everything.
-
-
-
-\---
-
-
-
-\# 11. COLOR SYSTEM
-
-
-
-Use the color system defined in MASTER\_PLAN.md.
-
-
-
-Primary visual direction:
-
-
-
-Dark background
-
-\+
-
-Electric cyan
-
-\+
-
-Violet
-
-\+
-
-White
-
-\+
-
-Muted gray
-
-
-
-Use accent colors intentionally.
-
-
-
-Do not make the interface look like a neon gaming website.
-
-
-
-\---
-
-
-
-\# 12. TYPOGRAPHY
-
-
-
-Use a modern sans-serif for primary text.
-
-
-
-Technical labels may use a monospaced font.
-
-
-
-Examples:
-
-
-
-B-NEURA
-
-
-
-NEURAL INTERFACE / SYSTEM 01
-
-
-
-SIGNAL DETECTED
-
-
-
-INTENTION CLASSIFIED
-
-
-
-FEEDBACK SIMULATION
-
-
-
-\---
-
-
-
-\# 13. ANIMATION PRINCIPLES
-
-
-
-Animations should communicate system behavior.
-
-
-
-Good examples:
-
-
-
-\- neural signal flowing through the architecture
-
-\- helmet layers separating
-
-\- AI decoding visualization
-
-\- virtual hand responding
-
-\- feedback loop animation
-
-\- scroll-based system explanations
-
-
-
-Avoid:
-
-
-
-\- excessive bouncing
-
-\- flashing
-
-\- distracting particles
-
-\- unnecessary motion
-
-\- slow transitions
-
-
-
-Support prefers-reduced-motion.
-
-
-
-\---
-
-
-
-\# 14. INTERACTION PRINCIPLES
-
-
-
-Every major interaction must have a purpose.
-
-
-
-Examples:
-
-
-
-NeuroHelmet interaction:
-
-
-
-Understand hardware architecture.
-
-
-
-System flow:
-
-
-
-Understand signal processing.
-
-
-
-VR demo:
-
-
-
-Understand agency.
-
-
-
-Sensory feedback:
-
-
-
-Understand future possibilities.
-
-
-
-Embodiment:
-
-
-
-Understand virtual body ownership.
-
-
-
-Presentation mode:
-
-
-
-Guide the live presentation.
-
-
-
-\---
-
-
-
-\# 15. TECH STACK
-
-
-
-Preferred:
-
-
-
-Next.js
-
-
-
-TypeScript
-
-
-
-Tailwind CSS
-
-
-
-Framer Motion
-
-
-
-React Three Fiber / Three.js only when justified
-
-
-
-Lucide icons
-
-
-
-Do not install unnecessary dependencies.
-
-
-
-Before adding a dependency, consider whether the same result can be achieved with existing tools.
-
-
-
-\---
-
-
-
-\# 16. CODE QUALITY
-
-
-
-Write:
-
-
-
-\- clean TypeScript
-
-\- modular React components
-
-\- reusable components
-
-\- semantic HTML
-
-\- accessible interactions
-
-\- clear variable names
-
-\- clear component names
-
-\- maintainable CSS
-
-
-
-Avoid:
-
-
-
-\- giant components
-
-\- duplicated logic
-
-\- unnecessary state
-
-\- magic numbers
-
-\- unnecessary abstractions
-
-\- dead code
-
-
-
-\---
-
-
-
-\# 17. COMPONENT ARCHITECTURE
-
-
-
-Follow the structure defined in MASTER\_PLAN.md.
-
-
-
-Potential components include:
-
-
-
-Hero
-
-
-
-Problem
-
-
-
-Idea
-
-
-
-NeuroHelmet
-
-
-
-SystemFlow
-
-
-
-VRDemo
-
-
-
-SensoryFeedback
-
-
-
-Embodiment
-
-
-
-Science
-
-
-
-Future
-
-
-
-Sources
-
-
-
-PresentationMode
-
-
-
-Keep components modular.
-
-
-
-Do not create duplicate components with similar functionality.
-
-
-
-\---
-
-
-
-\# 18. RESPONSIVENESS
-
-
-
-The website must support:
-
-
-
-\- desktop
-
-\- laptop
-
-\- tablet
-
-\- mobile
-
-
-
-Desktop is the primary presentation environment.
-
-
-
-Mobile must remain usable.
-
-
-
-Do not simply shrink desktop layouts.
-
-
-
-Use intentional responsive layouts.
-
-
-
-\---
-
-
-
-\# 19. ACCESSIBILITY
-
-
-
-Use:
-
-
-
-\- semantic HTML
-
-\- accessible buttons
-
-\- keyboard navigation
-
-\- visible focus states
-
-\- readable contrast
-
-\- alt text
-
-\- reduced motion support
-
-
-
-Do not communicate critical information only through animation.
-
-
-
-\---
-
-
-
-\# 20. PERFORMANCE
-
-
-
-Optimize:
-
-
-
-\- images
-
-\- videos
-
-\- 3D assets
-
-\- fonts
-
-\- animations
-
-\- JavaScript
-
-
-
-Use lazy loading for heavy resources.
-
-
-
-Avoid unnecessarily large assets.
-
-
-
-The presentation demo must run smoothly on a normal laptop.
-
-
-
-\---
-
-
-
-\# 21. 3D RULE
-
-
-
-Do not automatically use Three.js for everything.
-
-
-
-Use CSS, SVG, Framer Motion, or normal React whenever they are sufficient.
-
-
-
-Introduce Three.js / React Three Fiber only when 3D provides a meaningful improvement.
-
-
-
-\---
-
-
-
-\# 22. PRESENTATION REQUIREMENTS
-
-
-
-The website will be used during a live academic presentation.
-
-
-
-Therefore:
-
-
-
-\- important interactions must be reliable
-
-\- avoid unnecessary external APIs
-
-\- avoid fragile network dependencies
-
-\- avoid complicated setup
-
-\- core demo must work locally
-
-\- animations should not block navigation
-
-\- presentation mode should provide a controlled sequence
-
-
-
-\---
-
-
-
-\# 23. NO UNAUTHORIZED SCOPE
-
-
-
-Do NOT add:
-
-
-
-\- authentication
-
-\- databases
-
-\- payments
-
-\- user accounts
-
-\- real medical data
-
-\- real neural data collection
-
-\- production medical infrastructure
-
-\- unnecessary backend services
-
-
-
-unless explicitly requested.
-
-
-
-This is primarily an interactive conceptual prototype.
-
-
-
-\---
-
-
-
-\# 24. ERROR HANDLING
-
-
-
-After implementation, run appropriate checks.
-
-
-
-When available, use:
-
-
-
-\- TypeScript checks
-
-\- ESLint
-
-\- production build
-
-
-
-Fix errors before reporting completion.
-
-
-
-Never hide errors.
-
-
-
-If an error cannot be fixed safely, explain it clearly.
-
-
-
-\---
-
-
-
-\# 25. GIT WORKFLOW
-
-
-
-Use meaningful commits.
-
-
-
-Examples:
-
-
-
-feat: initialize project foundation
-
-
-
-feat: add B-NEURA design system
-
-
-
-feat: add hero section
-
-
-
-feat: add neurohelmet visualization
-
-
-
-feat: add system flow
-
-
-
-feat: add VR prototype
-
-
-
-feat: add sensory feedback section
-
-
-
-feat: add embodiment interaction
-
-
-
-fix: improve mobile layout
-
-
-
-fix: optimize animation performance
-
-
-
-docs: add research sources
-
-
-
-Do not make giant unrelated commits.
-
-
-
-\---
-
-
-
-\# 26. FILE MODIFICATION RULE
-
-
-
-Before modifying an existing file:
-
-
-
-1\. Read it.
-
-2\. Understand its purpose.
-
-3\. Identify dependencies.
-
-4\. Make the smallest reasonable change.
-
-
-
-Do not rewrite working code unnecessarily.
-
-
-
-Do not delete functionality without explaining why.
-
-
-
-\---
-
-
-
-\# 27. WHEN REQUIREMENTS ARE AMBIGUOUS
-
-
-
-If ambiguity affects:
-
-
-
-\- architecture
-
-\- scientific meaning
-
-\- user experience
-
-\- safety
-
-\- data handling
-
-
-
-ask the user before proceeding.
-
-
-
-For minor visual choices, choose the option consistent with MASTER\_PLAN.md.
-
-
-
-\---
-
-
-
-\# 28. DEVELOPMENT REPORT
-
-
-
-After each completed phase, report:
-
-
-
-\## Completed
-
-
-
-What was implemented.
-
-
-
-\## Files Changed
-
-
-
-Files created or modified.
-
-
-
-\## Validation
-
-
-
-Tests/checks performed.
-
-
-
-\## Issues
-
-
-
-Remaining issues or limitations.
-
-
-
-\## Next Phase
-
-
-
-The next phase defined by MASTER\_PLAN.md.
-
-
-
-Then STOP.
-
-
-
-\---
-
-
-
-\# 29. DO NOT OVERENGINEER
-
-
-
-This project is an academic prototype.
-
-
-
-Prefer:
-
-
-
-simple
-
-
-
-reliable
-
-
-
-beautiful
-
-
-
-interactive
-
-
-
-maintainable
-
-
-
-over:
-
-
-
-complex
-
-
-
-fragile
-
-
-
-over-engineered
-
-
-
-The goal is to communicate the idea clearly.
-
-
-
-\---
-
-
-
-\# 30. NORTH STAR
-
-
-
-B-NEURA should feel like a believable prototype from a future neurotechnology research laboratory.
-
-
-
-It should be:
-
-
-
-Scientific.
-
-
-
-Human.
-
-
-
-Immersive.
-
-
-
-Interactive.
-
-
-
-Credible.
-
-
-
-Ambitious.
-
-
+B-NEURA should feel like a believable prototype from a future neurotechnology research laboratory: Scientific. Human. Immersive. Interactive. Credible. Ambitious.
 
 The audience should leave understanding:
 
-
-
 > The future of VR may not only be about seeing a virtual world.
-
-
 
 > It may be about creating a new pathway between the brain's intention and the experience of having a body.
 
+---
 
+## 26. Final rule
 
-\---
-
-
-
-\# 31. FINAL RULE
-
-
-
-READ THE PLAN.
-
-
-
-UNDERSTAND THE PHASE.
-
-
-
-IMPLEMENT ONLY THE REQUESTED PHASE.
-
-
-
-TEST IT.
-
-
-
-REPORT IT.
-
-
-
-STOP.
-
-
-
-Never silently jump ahead.
-
+Read the plan. Understand the phase. Implement only the requested phase. Test it. Report it. Stop. Never silently jump ahead.
