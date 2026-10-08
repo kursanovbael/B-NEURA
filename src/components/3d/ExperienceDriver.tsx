@@ -13,6 +13,7 @@ import { applyCameraPose } from "./CameraRig";
 import { FLOW_LABEL_ANCHORS } from "./flowPaths";
 import {
   FLOW_LABEL_IDS,
+  contactFocus,
   flowVisuals,
   stepFlow,
   type FlowDriverState,
@@ -21,7 +22,7 @@ import {
 import { HELMET_LAYERS } from "./helmetLayers";
 import { markActive, placeCallout } from "./callouts";
 import { stepInteraction, type Interaction } from "./interaction";
-import { sampleJourney } from "./journey";
+import { sampleJourney, withContactFocus } from "./journey";
 import { readJourney } from "./journeyScroll";
 import type { HelmetLayerId, JourneySource } from "./types";
 
@@ -126,9 +127,19 @@ export function ExperienceDriver({
       flowObjects.current = findFlowObjects(state.scene);
     stepFlow(flow.current, delta, instant);
     const visuals = flowVisuals(flow.current.shown);
-    applyFlow(visuals, journey.flowWeight, flowObjects.current);
+    const portrait = width / height < 1.2;
+    const close = portrait
+      ? journey.flowWeight * contactFocus(flow.current.shown)
+      : 0;
+    applyFlow(visuals, journey.flowWeight, flowObjects.current, close);
 
-    applyCameraPose(state.camera, journey.camera, journey.shift, width, height);
+    applyCameraPose(
+      state.camera,
+      close > 0 ? withContactFocus(journey.camera, close) : journey.camera,
+      journey.shift,
+      width,
+      height,
+    );
     found.root?.updateMatrixWorld(true);
     state.camera.matrixWorldInverse.copy(state.camera.matrixWorld).invert();
 
@@ -159,7 +170,12 @@ export function ExperienceDriver({
       point.copy(FLOW_LABEL_ANCHORS[id]).project(state.camera);
       const x = (point.x * 0.5 + 0.5) * width;
       const y = (-point.y * 0.5 + 0.5) * height;
-      const own = id === "represented" ? visuals.represented : 1;
+      const own =
+        id === "represented"
+          ? visuals.represented
+          : id === "user"
+            ? visuals.paths[4]
+            : 1;
       const on = point.z < 1 ? journey.flowWeight * own : 0;
       const margin =
         width < NARROW_WIDTH

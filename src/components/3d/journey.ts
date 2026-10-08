@@ -256,6 +256,26 @@ function sampleVec(curves: readonly Curve[], j: number): Vec3 {
   ];
 }
 
+/** Camera for tall screens while the hand touches the object. */
+const CONTACT_CAMERA = {
+  target: [1.85, 0.0, 0.2] as Vec3,
+  position: [2.3, 0.4, 5.3] as Vec3,
+};
+
+/** Blends a pose toward the close view of the hand and object. */
+export function withContactFocus(pose: CameraPose, amount: number): CameraPose {
+  const mix = (a: Vec3, b: Vec3): Vec3 => [
+    a[0] + (b[0] - a[0]) * amount,
+    a[1] + (b[1] - a[1]) * amount,
+    a[2] + (b[2] - a[2]) * amount,
+  ];
+  return {
+    position: mix(pose.position, CONTACT_CAMERA.position),
+    target: mix(pose.target, CONTACT_CAMERA.target),
+    fov: pose.fov,
+  };
+}
+
 export function sampleJourney(j: number, aspect = 16 / 9): JourneyState {
   const target = sampleVec(TARGET, j);
   const position = sampleVec(POSITION, j);

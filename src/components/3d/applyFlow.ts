@@ -18,6 +18,7 @@ import { HELMET_MATERIALS as M } from "./helmet/HelmetMaterials";
 export type FlowObjects = {
   group: Object3D | null;
   active: (Mesh | null)[];
+  mid: (Mesh | null)[];
   pulse: Mesh | null;
   hand: Object3D | null;
   fingers: Object3D[];
@@ -39,6 +40,10 @@ export function findFlowObjects(scene: Scene): FlowObjects {
     active: Array.from(
       { length: FLOW_PATH_COUNT },
       (_, i) => (scene.getObjectByName(`flow-active-${i}`) as Mesh) ?? null,
+    ),
+    mid: Array.from(
+      { length: FLOW_PATH_COUNT },
+      (_, i) => (scene.getObjectByName(`flow-mid-${i}`) as Mesh) ?? null,
     ),
     pulse: (scene.getObjectByName("flow-pulse") as Mesh) ?? null,
     hand: scene.getObjectByName("virtual-hand") ?? null,
@@ -75,6 +80,8 @@ export function applyFlow(
   visuals: FlowVisuals,
   weight: number,
   objects: FlowObjects,
+  /** 0 to 1: a close view of the hand; secondary geometry steps back. */
+  close = 0,
 ) {
   if (objects.group) objects.group.visible = weight > 0.01;
 
@@ -83,6 +90,9 @@ export function applyFlow(
   FLOW_MATERIALS.intention.opacity = weight;
   FLOW_MATERIALS.feedback.opacity = weight;
   FLOW_MATERIALS.hand.opacity = weight;
+  FLOW_MATERIALS.body.opacity = 0.4 * weight * (1 - 0.75 * close);
+  FLOW_MATERIALS.object.opacity = weight;
+  FLOW_MATERIALS.object.emissiveIntensity = 0.7 * visuals.targetResponse;
 
   for (let i = 0; i < FLOW_PATH_COUNT; i++) {
     const frac = visuals.paths[i];
@@ -90,6 +100,8 @@ export function applyFlow(
       0,
       Math.floor(frac * TUBULAR_SEGMENTS) * INDICES_PER_SEGMENT,
     );
+    const mid = objects.mid[i];
+    if (mid) mid.visible = frac > 0.5;
     ARROW_MATERIALS[i].opacity = weight * (frac >= 0.999 ? 1 : ARROW_DIM);
   }
 

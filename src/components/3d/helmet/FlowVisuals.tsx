@@ -1,8 +1,13 @@
 import { useMemo } from "react";
 import { Quaternion, TubeGeometry, Vector3 } from "three";
-import { FLOW_ANCHORS, FLOW_CURVES, FLOW_PATH_KIND } from "../flowPaths";
+import {
+  FLOW_ANCHORS,
+  FLOW_CURVES,
+  FLOW_PATH_KIND,
+  OBJECT_RADIUS,
+} from "../flowPaths";
 import { ARROW_MATERIALS, FLOW_MATERIALS } from "./flowMaterials";
-import { VirtualHand } from "./VirtualHand";
+import { VirtualArm, VirtualHand } from "./VirtualHand";
 
 const TUBULAR_SEGMENTS = 64;
 const RADIAL_SEGMENTS = 6;
@@ -48,6 +53,11 @@ export function FlowVisuals() {
           ),
           arrowAt: end.clone().addScaledVector(tangent, -0.04),
           arrowTurn: new Quaternion().setFromUnitVectors(UP, tangent),
+          midAt: curve.getPointAt(0.5),
+          midTurn: new Quaternion().setFromUnitVectors(
+            UP,
+            curve.getTangentAt(0.5).normalize(),
+          ),
         };
       }),
     [],
@@ -71,6 +81,15 @@ export function FlowVisuals() {
           >
             <coneGeometry args={[0.035, 0.1, 10]} />
           </mesh>
+          <mesh
+            name={`flow-mid-${i}`}
+            visible={false}
+            position={part.midAt}
+            quaternion={part.midTurn}
+            material={ARROW_MATERIALS[i]}
+          >
+            <coneGeometry args={[0.028, 0.08, 10]} />
+          </mesh>
         </group>
       ))}
 
@@ -83,7 +102,15 @@ export function FlowVisuals() {
         position={FLOW_ANCHORS.target}
         material={FLOW_MATERIALS.target}
       >
-        <torusGeometry args={[0.2, 0.008, 8, 48]} />
+        <torusGeometry args={[0.2, 0.006, 8, 48]} />
+      </mesh>
+
+      <mesh
+        name="flow-object"
+        position={FLOW_ANCHORS.object}
+        material={FLOW_MATERIALS.object}
+      >
+        <sphereGeometry args={[OBJECT_RADIUS, 24, 16]} />
       </mesh>
 
       <mesh
@@ -94,6 +121,7 @@ export function FlowVisuals() {
         <torusGeometry args={[0.17, 0.006, 8, 40]} />
       </mesh>
 
+      <VirtualArm />
       <VirtualHand />
     </group>
   );

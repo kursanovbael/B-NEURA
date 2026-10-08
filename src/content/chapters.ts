@@ -162,7 +162,7 @@ export const STOPS: readonly Stop[] = [
     chapterHeadline: "Follow one intention.",
     headline: "MOVE HAND",
     body: [
-      "A simulation of one intention travelling through the helmet and back. Nothing here uses or decodes real signals.",
+      "A simulation of one intention making a full loop: through the helmet, into a virtual hand, onto a virtual object, and back as a simulated feedback event. Nothing here uses or decodes real signals.",
     ],
   },
 ];

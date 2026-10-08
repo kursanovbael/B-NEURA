@@ -11,7 +11,14 @@ import { clamp01, smoothstep } from "./experience";
  */
 
 export type FlowLabelId =
-  "intention" | "sensors" | "decoder" | "represented" | "hand" | "feedback";
+  | "intention"
+  | "sensors"
+  | "decoder"
+  | "represented"
+  | "hand"
+  | "object"
+  | "feedback"
+  | "user";
 
 export const FLOW_LABEL_IDS: readonly FlowLabelId[] = [
   "intention",
@@ -19,7 +26,9 @@ export const FLOW_LABEL_IDS: readonly FlowLabelId[] = [
   "decoder",
   "represented",
   "hand",
+  "object",
   "feedback",
+  "user",
 ];
 
 /** The five route segments, in order. */
@@ -79,10 +88,21 @@ export function flowVisuals(f: number): FlowVisuals {
       sensors: step === 1,
       decoder: step === 2 || step === 3,
       represented: step === 3,
-      hand: step === 4 || step === 5,
+      hand: step === 4,
+      object: step === 5,
       feedback: step === 6,
+      user: step === 6,
     },
   };
+}
+
+/**
+ * 0 to 1: how closely a tall screen frames the hand and the object. It is 1
+ * while the hand moves and touches (states 4 and 5) and relaxes before the
+ * feedback returns, so the whole route is in view again.
+ */
+export function contactFocus(f: number): number {
+  return s(f - 3) * (1 - s(f - 5));
 }
 
 /** State the frame loop keeps between frames. Plain object in a ref. */

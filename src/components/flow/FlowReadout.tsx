@@ -1,4 +1,5 @@
 import {
+  FLOW_LOOP_NOTE,
   FLOW_NARRATION,
   FLOW_STATES,
   type FlowSnapshot,
@@ -51,7 +52,10 @@ export function FlowReadout({ snapshot, className }: FlowReadoutProps) {
         </div>
       </dl>
       {isComplete ? (
-        <p className="type-label text-muted">LOOP COMPLETE</p>
+        <p className="text-foreground text-sm">
+          <span className="type-label text-muted block">LOOP COMPLETE</span>
+          {FLOW_LOOP_NOTE}
+        </p>
       ) : null}
     </div>
   );

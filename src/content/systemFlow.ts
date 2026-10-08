@@ -89,21 +89,21 @@ export const FLOW_STATES: readonly FlowState[] = [
     id: "body-updated",
     label: "VIRTUAL BODY UPDATED",
     description:
-      "Virtual control. A simulated representation of control reaching the virtual body.",
+      "Virtual control. A simulated representation of the represented intention moving a virtual arm and hand toward a virtual object.",
     station: "virtual-body",
   },
   {
     id: "environment-response",
     label: "ENVIRONMENT RESPONSE",
     description:
-      "A simulated representation of the virtual environment responding to the action.",
+      "CONTACT DETECTED. A simulated representation of the virtual hand touching the virtual object, which responds.",
     station: "environment",
   },
   {
     id: "feedback-simulated",
     label: "FEEDBACK SIMULATED",
     description:
-      "Feedback simulation. A simulated representation of information returning through the loop.",
+      "SIMULATED FEEDBACK EVENT. A simulated representation of a feedback pathway returning from the virtual object, through the feedback interface, toward the user. It does not produce natural sensation.",
     station: "feedback",
   },
 ];
@@ -111,7 +111,7 @@ export const FLOW_STATES: readonly FlowState[] = [
 export const FLOW_NARRATION: Record<FlowStateId, FlowNarration> = {
   idle: {
     seeing:
-      "The helmet at rest, the virtual hand lowered, and a thin route between them.",
+      "The helmet at rest, a virtual arm and hand lowered, a virtual object beside them, and a thin route through all of it.",
     part: "Intention",
     line: "One simulated intention: MOVE HAND. Nothing has been sent yet.",
     next: "Sensor layer",
@@ -138,25 +138,36 @@ export const FLOW_NARRATION: Record<FlowStateId, FlowNarration> = {
     next: "Virtual body",
   },
   "body-updated": {
-    seeing: "The virtual hand lifts and its fingers open.",
+    seeing: "The virtual forearm and hand lift toward a virtual object.",
     part: "Virtual body",
-    line: "The represented intention reaches the virtual body, and its hand starts to move.",
-    next: "Virtual environment",
+    line: "The virtual body is a representation used to show the control idea. The represented intention moves its arm and hand: VIRTUAL CONTROL.",
+    next: "Virtual object",
   },
   "environment-response": {
-    seeing: "The hand reaches the virtual target ring, which responds.",
+    seeing:
+      "The fingers touch the object. A thin ring appears around it, marked CONTACT DETECTED.",
     part: "Virtual environment",
-    line: "The virtual hand completes the movement and the virtual target responds.",
-    next: "Feedback interface",
+    line: "CONTACT DETECTED. The virtual environment registers the touch. This is information inside the simulation, not a sensation.",
+    next: "Simulated feedback event",
   },
   "feedback-simulated": {
     seeing:
-      "A pale cyan-white line returns from the hand to the feedback interface, then to the head.",
+      "A pale cyan-white line leaves the object, reaches the feedback band of the helmet and returns toward the user.",
     part: "Feedback interface",
-    line: "SIMULATED FEEDBACK returns toward the helmet. No real sensation is produced.",
+    line: "SIMULATED FEEDBACK EVENT. The prototype represents a possible feedback pathway. It does not currently produce natural sensation.",
     next: null,
   },
 };
+
+/** Event labels shown in the flow. Only meaningful inside the SIMULATION. */
+export const FLOW_EVENT_LABELS = {
+  contact: "CONTACT DETECTED",
+  feedbackEvent: "SIMULATED FEEDBACK EVENT",
+} as const;
+
+/** The idea of the chapter, shown when the loop closes. */
+export const FLOW_LOOP_NOTE =
+  "Control is not the end of the loop. Interaction creates information that could return toward the user.";
 
 export const DEFAULT_INTENTION: SimulatedIntention = {
   id: "move-hand",

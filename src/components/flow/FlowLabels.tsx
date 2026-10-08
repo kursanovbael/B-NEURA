@@ -4,7 +4,7 @@ import type { RefObject } from "react";
 import type { FlowLabelElements } from "@/components/3d/ExperienceDriver";
 import type { FlowLabelId } from "@/components/3d/flowVisuals";
 import { CONTEXT_LABELS } from "@/content/contextLabels";
-import { DEFAULT_INTENTION } from "@/content/systemFlow";
+import { DEFAULT_INTENTION, FLOW_EVENT_LABELS } from "@/content/systemFlow";
 import { cn } from "@/lib/cn";
 
 type LabelSpec = {
@@ -13,6 +13,8 @@ type LabelSpec = {
   number: string;
   name: string;
   details?: readonly string[];
+  /** Show the details only while this label is the active one. */
+  detailsWhenActive?: boolean;
   tone: "signal" | "violet" | "intention" | "feedback";
 };
 
@@ -35,9 +37,25 @@ const LABELS: readonly LabelSpec[] = [
   },
   { id: "hand", number: "4", name: "Virtual hand", tone: "intention" },
   {
+    id: "object",
+    number: "",
+    name: "Virtual object",
+    details: [FLOW_EVENT_LABELS.contact],
+    detailsWhenActive: true,
+    tone: "intention",
+  },
+  {
     id: "feedback",
     number: "5",
-    name: "Simulated feedback",
+    name: "Feedback interface",
+    details: [FLOW_EVENT_LABELS.feedbackEvent],
+    detailsWhenActive: true,
+    tone: "feedback",
+  },
+  {
+    id: "user",
+    number: "",
+    name: "Back toward the user",
     tone: "feedback",
   },
 ];
@@ -68,7 +86,10 @@ export function FlowLabels({ flowLabelEls }: FlowLabelsProps) {
           ref={(el) => {
             flowLabelEls.current[label.id] = el;
           }}
-          className="group/co group/fl absolute top-0 left-0 will-change-transform"
+          className={cn(
+            "group/co group/fl absolute top-0 left-0 will-change-transform",
+            label.id === "user" && "max-md:!hidden",
+          )}
           style={{ visibility: "hidden", opacity: 0 }}
         >
           {label.number ? (
@@ -96,8 +117,11 @@ export function FlowLabels({ flowLabelEls }: FlowLabelsProps) {
               <span
                 key={line}
                 className={cn(
-                  "bg-background/80 mt-px block rounded-sm px-1.5 py-0.5 max-md:hidden max-md:group-data-[active=true]/fl:block text-[0.625rem] font-semibold tracking-wider md:text-[0.6875rem]",
-                  "text-accent",
+                  "bg-background/80 mt-px rounded-sm px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-wider md:text-[0.6875rem]",
+                  label.detailsWhenActive
+                    ? "hidden group-data-[active=true]/fl:block"
+                    : "max-md:group-data-[active=true]/fl:block block max-md:hidden",
+                  label.tone === "feedback" ? "text-foreground" : "text-accent",
                 )}
               >
                 {line}

@@ -36,6 +36,22 @@ export const FLOW_MATERIALS = {
   pulse: basic("#22d3ee"),
   target: basic("#f4efe6"),
   decoderRing: basic("#a78bfa"),
+  object: new MeshStandardMaterial({
+    color: "#8d96a3",
+    emissive: "#a8e4f0",
+    emissiveIntensity: 0,
+    roughness: 0.6,
+    metalness: 0.1,
+    transparent: true,
+    opacity: 0,
+  }),
+  body: new MeshStandardMaterial({
+    color: "#cfc8bc",
+    roughness: 0.7,
+    metalness: 0.05,
+    transparent: true,
+    opacity: 0,
+  }),
   hand: new MeshStandardMaterial({
     color: "#e9e4da",
     roughness: 0.55,

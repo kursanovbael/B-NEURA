@@ -1,4 +1,4 @@
-import { HAND } from "../flowPaths";
+import { FLOW_ANCHORS, HAND } from "../flowPaths";
 import { FLOW_MATERIALS } from "./flowMaterials";
 
 /** Finger placement across the palm (local z) and the two segment lengths. */
@@ -81,6 +81,45 @@ export function VirtualHand() {
           </group>
         </group>
       </group>
+    </group>
+  );
+}
+
+/**
+ * The minimal body reference behind the hand: elbow, upper arm, shoulder and a
+ * thin torso plate. Static; only the forearm and hand move. It stands for a
+ * body in the simulation and is deliberately plain.
+ */
+export function VirtualArm() {
+  const pivot = HAND.pivot;
+  const shoulder = FLOW_ANCHORS.shoulder;
+  const length = pivot.y - shoulder.y;
+  return (
+    <group name="virtual-arm">
+      <mesh
+        position={[pivot.x, pivot.y, pivot.z]}
+        material={FLOW_MATERIALS.body}
+      >
+        <sphereGeometry args={[0.065, 16, 12]} />
+      </mesh>
+      <mesh
+        position={[pivot.x, pivot.y - length / 2, pivot.z]}
+        material={FLOW_MATERIALS.body}
+      >
+        <cylinderGeometry args={[0.05, 0.062, length, 16]} />
+      </mesh>
+      <mesh
+        position={[shoulder.x, shoulder.y, shoulder.z]}
+        material={FLOW_MATERIALS.body}
+      >
+        <sphereGeometry args={[0.085, 16, 12]} />
+      </mesh>
+      <mesh
+        position={[shoulder.x + 0.14, shoulder.y - 0.22, shoulder.z - 0.04]}
+        material={FLOW_MATERIALS.body}
+      >
+        <boxGeometry args={[0.3, 0.6, 0.04]} />
+      </mesh>
     </group>
   );
 }

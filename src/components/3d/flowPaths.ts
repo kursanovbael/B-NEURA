@@ -17,6 +17,9 @@ const UP = new Vector3(0, 1, 0);
 const toWorld = (local: Vector3) => local.clone().applyAxisAngle(UP, FLOW_YAW);
 const deg = (d: number) => (d * Math.PI) / 180;
 
+/** Radius of the virtual object. */
+export const OBJECT_RADIUS = 0.1;
+
 /** Resting and raised pose of the virtual hand, which pivots at the wrist. */
 export const HAND = {
   pivot: new Vector3(1.45, -0.35, 0.2),
@@ -43,13 +46,27 @@ const raisedTip = new Vector3(
   HAND.pivot.z,
 );
 
+/** The object sits just past the fingertips of the raised hand. */
+const objectCenter = raisedTip
+  .clone()
+  .add(
+    new Vector3(
+      Math.cos(HAND.raisedAngle),
+      Math.sin(HAND.raisedAngle),
+      0,
+    ).multiplyScalar(OBJECT_RADIUS * 0.45),
+  );
+
 export const FLOW_ANCHORS = {
   head,
   sensorPad,
   decoder,
   feedbackPad,
-  /** Center of the ring that stands for the virtual target. */
-  target: raisedTip.clone().add(new Vector3(-0.06, -0.02, 0)),
+  /** Center of the virtual object the raised hand touches. */
+  target: objectCenter,
+  object: objectCenter,
+  /** Elbow, shoulder and torso reference of the minimal virtual body. */
+  shoulder: HAND.pivot.clone().add(new Vector3(0, -0.55, 0)),
   /** Hand near its middle when raised. */
   hand: new Vector3(
     HAND.pivot.x + 0.5 * Math.cos(HAND.raisedAngle),
@@ -79,7 +96,7 @@ export const FLOW_CURVES: readonly CatmullRomCurve3[] = [
     HAND.pivot.clone(),
   ]),
   new CatmullRomCurve3([
-    new Vector3(1.95, 0.0, 0.25),
+    objectCenter.clone(),
     new Vector3(1.5, -0.55, 0.5),
     new Vector3(0.9, -0.65, 0.55),
     feedbackPad,
@@ -107,5 +124,7 @@ export const FLOW_LABEL_ANCHORS = {
   decoder,
   represented: new Vector3(1.0, 0.8, 0.1),
   hand: FLOW_ANCHORS.hand,
+  object: objectCenter.clone().add(new Vector3(0.05, 0.3, 0)),
+  user: head.clone().add(new Vector3(0, -0.75, 0)),
   feedback: feedbackPad,
 } as const;
