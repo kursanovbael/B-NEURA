@@ -2,37 +2,40 @@
 
 import { useLayoutEffect } from "react";
 import { useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "three";
+import { PerspectiveCamera, type Camera } from "three";
 import type { CameraPose } from "./types";
 
 /**
- * Stable camera states. Phase 2 only needs a default presentation view and a
- * closer inspection view; cinematic choreography arrives in later phases.
+ * Initial camera pose (the hero stage). During the experience the camera is
+ * driven every frame by the timeline through `applyCameraPose`.
  */
-export const CAMERA_POSES = {
-  default: { position: [1.95, 0.7, 3.3], target: [0, 0.02, 0], fov: 32 },
-  inspection: { position: [1.6, 0.6, 2.7], target: [0, 0.08, 0], fov: 32 },
-} as const satisfies Record<string, CameraPose>;
+export const DEFAULT_CAMERA_POSE: CameraPose = {
+  position: [1.95, 0.7, 3.3],
+  target: [0, 0.02, 0],
+  fov: 32,
+};
 
-export type CameraPoseId = keyof typeof CAMERA_POSES;
-
-export const DEFAULT_CAMERA_POSE: CameraPose = CAMERA_POSES.default;
+/** Applies a pose to a camera. Plain function so the frame loop can call it. */
+export function applyCameraPose(camera: Camera, pose: CameraPose) {
+  if (!(camera instanceof PerspectiveCamera)) return;
+  camera.position.set(...pose.position);
+  if (camera.fov !== pose.fov) {
+    camera.fov = pose.fov;
+    camera.updateProjectionMatrix();
+  }
+  camera.lookAt(...pose.target);
+}
 
 type CameraRigProps = {
   pose?: CameraPose;
 };
 
-/** Applies a camera pose. No animation: states are switched, not tweened. */
+/** Sets the initial camera pose before the first frame is drawn. */
 export function CameraRig({ pose = DEFAULT_CAMERA_POSE }: CameraRigProps) {
   const get = useThree((state) => state.get);
 
   useLayoutEffect(() => {
-    const { camera } = get();
-    if (!(camera instanceof PerspectiveCamera)) return;
-    camera.position.set(...pose.position);
-    camera.fov = pose.fov;
-    camera.lookAt(...pose.target);
-    camera.updateProjectionMatrix();
+    applyCameraPose(get().camera, pose);
   }, [get, pose]);
 
   return null;

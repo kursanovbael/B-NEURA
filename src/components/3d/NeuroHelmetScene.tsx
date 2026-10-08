@@ -2,37 +2,39 @@
 
 import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
-import { CAMERA_POSES, CameraRig, type CameraPoseId } from "./CameraRig";
+import type { HelmetStageId } from "@/content/helmetStages";
+import { CameraRig } from "./CameraRig";
+import { ExperienceDriver } from "./ExperienceDriver";
 import { NeuroHelmet, type HelmetLayerVisibility } from "./helmet";
 import { SceneEnvironment } from "./SceneEnvironment";
+import type { ProgressSource } from "./types";
 
 type NeuroHelmetSceneProps = {
+  source: ProgressSource;
   visibleLayers: HelmetLayerVisibility;
-  cameraPose: CameraPoseId;
-  reducedMotion: boolean;
+  onStageChange?: (stage: HelmetStageId) => void;
 };
 
-/** Composes camera, environment and helmet. */
+/** Composes camera, environment, helmet and the timeline driver. */
 export function NeuroHelmetScene({
+  source,
   visibleLayers,
-  cameraPose,
-  reducedMotion,
+  onStageChange,
 }: NeuroHelmetSceneProps) {
   const invalidate = useThree((state) => state.invalidate);
 
-  // With reduced motion the canvas renders on demand; redraw on any change.
+  // With a fixed source the canvas renders on demand; redraw on any change.
+  const fixedValue = source.mode === "fixed" ? source.value : null;
   useEffect(() => {
     invalidate();
-  }, [visibleLayers, cameraPose, invalidate]);
+  }, [fixedValue, visibleLayers, invalidate]);
 
   return (
     <>
-      <CameraRig pose={CAMERA_POSES[cameraPose]} />
+      <CameraRig />
       <SceneEnvironment />
-      <NeuroHelmet
-        visibleLayers={visibleLayers}
-        reducedMotion={reducedMotion}
-      />
+      <NeuroHelmet visibleLayers={visibleLayers} />
+      <ExperienceDriver source={source} onStageChange={onStageChange} />
     </>
   );
 }

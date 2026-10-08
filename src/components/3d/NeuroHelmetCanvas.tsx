@@ -1,26 +1,30 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { DEFAULT_CAMERA_POSE, type CameraPoseId } from "./CameraRig";
+import type { HelmetStageId } from "@/content/helmetStages";
+import { DEFAULT_CAMERA_POSE } from "./CameraRig";
 import type { HelmetLayerVisibility } from "./helmet";
 import { NeuroHelmetScene } from "./NeuroHelmetScene";
+import type { ProgressSource } from "./types";
 
 type NeuroHelmetCanvasProps = {
+  source: ProgressSource;
   visibleLayers: HelmetLayerVisibility;
-  cameraPose: CameraPoseId;
   reducedMotion: boolean;
   /** When false, rendering is fully paused (no per-frame work). */
   active: boolean;
   onContextLost: () => void;
+  onStageChange?: (stage: HelmetStageId) => void;
 };
 
 /** The single WebGL canvas. Loaded lazily by NeuroHelmetViewer. */
 export default function NeuroHelmetCanvas({
+  source,
   visibleLayers,
-  cameraPose,
   reducedMotion,
   active,
   onContextLost,
+  onStageChange,
 }: NeuroHelmetCanvasProps) {
   return (
     <Canvas
@@ -39,9 +43,9 @@ export default function NeuroHelmetCanvas({
       }}
     >
       <NeuroHelmetScene
+        source={source}
         visibleLayers={visibleLayers}
-        cameraPose={cameraPose}
-        reducedMotion={reducedMotion}
+        onStageChange={onStageChange}
       />
     </Canvas>
   );

@@ -1,8 +1,10 @@
+import type { RefObject } from "react";
+import type { HelmetStageId } from "@/content/helmetStages";
+
 export type Vec3 = readonly [x: number, y: number, z: number];
 
-/** Narrative phase of the future scroll-driven helmet experience. */
-export type ExperiencePhase =
-  "hero" | "close-up" | "exploded" | "internal" | "cutaway";
+/** Narrative phase of the scroll-driven helmet experience (see helmetStages). */
+export type ExperiencePhase = HelmetStageId;
 
 /**
  * Single source of truth the scene reads from. Future scroll logic only has to
@@ -38,3 +40,16 @@ export type HelmetLayer = {
   /** Offset applied at progress = 1 (exploded view). */
   explodeOffset: Vec3;
 };
+
+/**
+ * Where the experience reads its progress from. "scroll" derives progress from
+ * the position of a tall track element (native scrolling, never intercepted);
+ * "fixed" is an explicit value (reduced-motion stage stepper, dev scrubber).
+ */
+export type ProgressSource =
+  | {
+      mode: "scroll";
+      track: RefObject<HTMLElement | null>;
+      stage: RefObject<HTMLElement | null>;
+    }
+  | { mode: "fixed"; value: number };

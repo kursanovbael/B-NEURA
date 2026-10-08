@@ -66,7 +66,7 @@ export const HELMET_MATERIALS = {
   }),
 
   processingBody: new MeshStandardMaterial({
-    color: "#121a24",
+    color: "#1c2837",
     roughness: 0.45,
     metalness: 0.5,
   }),

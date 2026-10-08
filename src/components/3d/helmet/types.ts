@@ -5,7 +5,7 @@ import type { HelmetLayerId } from "../types";
 /**
  * Shared props for every helmet layer. Each layer renders one named group
  * whose origin is the shared helmet origin (the center of the head volume),
- * so later phases can translate, rotate, scale or fade any layer on its own.
+ * so each layer can be translated, rotated, scaled or faded on its own.
  */
 export type HelmetLayerProps = {
   visible?: boolean;
@@ -13,8 +13,6 @@ export type HelmetLayerProps = {
 };
 
 export type HelmetLayerVisibility = Record<HelmetLayerId, boolean>;
-
-export type HelmetLayerRefs = Partial<Record<HelmetLayerId, Ref<Group>>>;
 
 export const ALL_LAYERS_VISIBLE: HelmetLayerVisibility = {
   "outer-shell": true,
