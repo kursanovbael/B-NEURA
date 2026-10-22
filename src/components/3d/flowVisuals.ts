@@ -54,7 +54,7 @@ export type FlowEmphasis = {
   pressure: number;
   /** The arm-angle arc (position / proprioception, illustrative). */
   arc: number;
-  /** The temperature selection: nothing is simulated, a pending marker shows. */
+  /** The temperature selection: nothing is simulated; a label explains why. */
   temperature: number;
   /** Fades the labels of the earlier story steps. */
   focus: number;

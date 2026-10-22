@@ -4,20 +4,29 @@ export type Source = {
   authors: string;
   venue: string;
   year: number;
-  /** DOI, PubMed ID, or URL. */
-  identifier: string;
-  /** ISO date (YYYY-MM-DD) on which the source was checked. */
+  /** PubMed ID. */
+  pmid: string;
+  doi: string;
+  /** Direct link to the PubMed record. */
+  url: string;
+  /** ISO date (YYYY-MM-DD) on which the source was last checked. */
   accessed: string;
-  /** What was actually read. Abstracts are not full texts. */
-  read: "abstract" | "bibliographic-only";
+  /**
+   * What was actually read. "full-text" means the PubMed Central full text was
+   * read; "abstract" means only the abstract (no free full text, or the full
+   * text was not read).
+   */
+  read: "full-text" | "abstract" | "bibliographic-only";
 };
 
-const ACCESSED = "2026-10-08";
+const ACCESSED = "2026-10-22";
+
+const pubmed = (pmid: string) => `https://pubmed.ncbi.nlm.nih.gov/${pmid}/`;
 
 /**
- * Sources checked for Phase 7. Each was found in PubMed and its abstract was
- * read; full texts were not. A source being listed does not make a claim
- * VERIFIED: see claims.ts.
+ * Sources behind the claims register. Metadata comes from PubMed records
+ * retrieved through the NCBI E-utilities. A source being listed does not make
+ * a claim VERIFIED: see claims.ts.
  */
 export const sources: readonly Source[] = [
   {
@@ -27,7 +36,9 @@ export const sources: readonly Source[] = [
     authors: "Hochberg LR, Serruya MD, Friehs GM, et al.",
     venue: "Nature",
     year: 2006,
-    identifier: "PMID 16838014",
+    pmid: "16838014",
+    doi: "10.1038/nature04970",
+    url: pubmed("16838014"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -38,9 +49,11 @@ export const sources: readonly Source[] = [
     authors: "Hochberg LR, Bacher D, Jarosiewicz B, et al.",
     venue: "Nature",
     year: 2012,
-    identifier: "PMID 22596161",
+    pmid: "22596161",
+    doi: "10.1038/nature11076",
+    url: pubmed("22596161"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "collinger-2013",
@@ -49,9 +62,11 @@ export const sources: readonly Source[] = [
     authors: "Collinger JL, Wodlinger B, Downey JE, et al.",
     venue: "The Lancet",
     year: 2013,
-    identifier: "PMID 23253623",
+    pmid: "23253623",
+    doi: "10.1016/S0140-6736(12)61816-9",
+    url: pubmed("23253623"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "bensmaia-miller-2014",
@@ -60,9 +75,11 @@ export const sources: readonly Source[] = [
     authors: "Bensmaia SJ, Miller LE",
     venue: "Nature Reviews Neuroscience",
     year: 2014,
-    identifier: "PMID 24739786",
+    pmid: "24739786",
+    doi: "10.1038/nrn3724",
+    url: pubmed("24739786"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "flesher-2016",
@@ -70,7 +87,9 @@ export const sources: readonly Source[] = [
     authors: "Flesher SN, Collinger JL, Foldes ST, et al.",
     venue: "Science Translational Medicine",
     year: 2016,
-    identifier: "PMID 27738096",
+    pmid: "27738096",
+    doi: "10.1126/scitranslmed.aaf8083",
+    url: pubmed("27738096"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -81,9 +100,11 @@ export const sources: readonly Source[] = [
     authors: "Flesher SN, Downey JE, Weiss JM, et al.",
     venue: "Science",
     year: 2021,
-    identifier: "PMID 34016775",
+    pmid: "34016775",
+    doi: "10.1126/science.abd0380",
+    url: pubmed("34016775"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "raspopovic-2014",
@@ -92,7 +113,9 @@ export const sources: readonly Source[] = [
     authors: "Raspopovic S, Capogrosso M, Petrini FM, et al.",
     venue: "Science Translational Medicine",
     year: 2014,
-    identifier: "PMID 24500407",
+    pmid: "24500407",
+    doi: "10.1126/scitranslmed.3006820",
+    url: pubmed("24500407"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -103,9 +126,24 @@ export const sources: readonly Source[] = [
     authors: "Horch K, Meek S, Taylor TG, Hutchinson DT",
     venue: "IEEE Transactions on Neural Systems and Rehabilitation Engineering",
     year: 2011,
-    identifier: "PMID 21859607",
+    pmid: "21859607",
+    doi: "10.1109/TNSRE.2011.2162635",
+    url: pubmed("21859607"),
     accessed: ACCESSED,
     read: "abstract",
+  },
+  {
+    id: "armenta-salas-2018",
+    title:
+      "Proprioceptive and cutaneous sensations in humans elicited by intracortical microstimulation",
+    authors: "Armenta Salas M, Bashford L, Kellis S, et al.",
+    venue: "eLife",
+    year: 2018,
+    pmid: "29633714",
+    doi: "10.7554/eLife.32904",
+    url: pubmed("29633714"),
+    accessed: ACCESSED,
+    read: "full-text",
   },
   {
     id: "osborn-2024",
@@ -114,7 +152,9 @@ export const sources: readonly Source[] = [
     authors: "Osborn LE, Venkatasubramanian R, Himmtann M, et al.",
     venue: "Nature Biomedical Engineering",
     year: 2024,
-    identifier: "PMID 37500749",
+    pmid: "37500749",
+    doi: "10.1038/s41551-023-01070-w",
+    url: pubmed("37500749"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -125,7 +165,70 @@ export const sources: readonly Source[] = [
     authors: "Pacchierotti C, Sinclair S, Solazzi M, et al.",
     venue: "IEEE Transactions on Haptics",
     year: 2017,
-    identifier: "PMID 28500008",
+    pmid: "28500008",
+    doi: "10.1109/TOH.2017.2689006",
+    url: pubmed("28500008"),
+    accessed: ACCESSED,
+    read: "abstract",
+  },
+  {
+    id: "wolpaw-2002",
+    title: "Brain-computer interfaces for communication and control",
+    authors: "Wolpaw JR, Birbaumer N, McFarland DJ, et al.",
+    venue: "Clinical Neurophysiology",
+    year: 2002,
+    pmid: "12048038",
+    doi: "10.1016/s1388-2457(02)00057-3",
+    url: pubmed("12048038"),
+    accessed: ACCESSED,
+    read: "abstract",
+  },
+  {
+    id: "edelman-2025",
+    title:
+      "Non-invasive brain-computer interfaces: state of the art and trends",
+    authors: "Edelman BJ, Zhang S, Schalk G, et al.",
+    venue: "IEEE Reviews in Biomedical Engineering",
+    year: 2025,
+    pmid: "39186407",
+    doi: "10.1109/RBME.2024.3449790",
+    url: pubmed("39186407"),
+    accessed: ACCESSED,
+    read: "full-text",
+  },
+  {
+    id: "willett-2021",
+    title: "High-performance brain-to-text communication via handwriting",
+    authors: "Willett FR, Avansino DT, Hochberg LR, et al.",
+    venue: "Nature",
+    year: 2021,
+    pmid: "33981047",
+    doi: "10.1038/s41586-021-03506-2",
+    url: pubmed("33981047"),
+    accessed: ACCESSED,
+    read: "full-text",
+  },
+  {
+    id: "willett-2023",
+    title: "A high-performance speech neuroprosthesis",
+    authors: "Willett FR, Kunz EM, Fan C, et al.",
+    venue: "Nature",
+    year: 2023,
+    pmid: "37612500",
+    doi: "10.1038/s41586-023-06377-x",
+    url: pubmed("37612500"),
+    accessed: ACCESSED,
+    read: "full-text",
+  },
+  {
+    id: "laver-2025",
+    title: "Virtual reality for stroke rehabilitation",
+    authors: "Laver KE, Lange B, George S, et al.",
+    venue: "Cochrane Database of Systematic Reviews",
+    year: 2025,
+    pmid: "40537150",
+    doi: "10.1002/14651858.CD008349.pub5",
+    url: pubmed("40537150"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -136,7 +239,9 @@ export const sources: readonly Source[] = [
     authors: "Gallagher S",
     venue: "Trends in Cognitive Sciences",
     year: 2000,
-    identifier: "PMID 10637618",
+    pmid: "10637618",
+    doi: "10.1016/s1364-6613(99)01417-5",
+    url: pubmed("10637618"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -146,7 +251,9 @@ export const sources: readonly Source[] = [
     authors: "Haggard P",
     venue: "Nature Reviews Neuroscience",
     year: 2017,
-    identifier: "PMID 28251993",
+    pmid: "28251993",
+    doi: "10.1038/nrn.2017.14",
+    url: pubmed("28251993"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -156,17 +263,21 @@ export const sources: readonly Source[] = [
     authors: "Tsakiris M",
     venue: "Neuropsychologia",
     year: 2010,
-    identifier: "PMID 19819247",
+    pmid: "19819247",
+    doi: "10.1016/j.neuropsychologia.2009.09.034",
+    url: pubmed("19819247"),
     accessed: ACCESSED,
     read: "abstract",
   },
   {
     id: "longo-2008",
     title: "What is embodiment? A psychometric approach",
-    authors: "Longo MR, Schuur F, Kammers MPM, et al.",
+    authors: "Longo MR, Schüür F, Kammers MP, et al.",
     venue: "Cognition",
     year: 2008,
-    identifier: "PMID 18262508",
+    pmid: "18262508",
+    doi: "10.1016/j.cognition.2007.12.004",
+    url: pubmed("18262508"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -176,9 +287,11 @@ export const sources: readonly Source[] = [
     authors: "Slater M, Perez-Marcos D, Ehrsson HH, Sanchez-Vives MV",
     venue: "Frontiers in Human Neuroscience",
     year: 2008,
-    identifier: "PMID 18958207",
+    pmid: "18958207",
+    doi: "10.3389/neuro.09.006.2008",
+    url: pubmed("18958207"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "slater-2009",
@@ -186,9 +299,11 @@ export const sources: readonly Source[] = [
     authors: "Slater M, Perez-Marcos D, Ehrsson HH, Sanchez-Vives MV",
     venue: "Frontiers in Neuroscience",
     year: 2009,
-    identifier: "PMID 20011144",
+    pmid: "20011144",
+    doi: "10.3389/neuro.01.029.2009",
+    url: pubmed("20011144"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "marasco-2011",
@@ -197,7 +312,9 @@ export const sources: readonly Source[] = [
     authors: "Marasco PD, Kim K, Colgate JE, et al.",
     venue: "Brain",
     year: 2011,
-    identifier: "PMID 21252109",
+    pmid: "21252109",
+    doi: "10.1093/brain/awq361",
+    url: pubmed("21252109"),
     accessed: ACCESSED,
     read: "abstract",
   },
@@ -208,9 +325,11 @@ export const sources: readonly Source[] = [
     authors: "Page DM, George JA, Kluger DT, et al.",
     venue: "Frontiers in Human Neuroscience",
     year: 2018,
-    identifier: "PMID 30319374",
+    pmid: "30319374",
+    doi: "10.3389/fnhum.2018.00352",
+    url: pubmed("30319374"),
     accessed: ACCESSED,
-    read: "abstract",
+    read: "full-text",
   },
   {
     id: "botvinick-cohen-1998",
@@ -218,8 +337,23 @@ export const sources: readonly Source[] = [
     authors: "Botvinick M, Cohen J",
     venue: "Nature",
     year: 1998,
-    identifier: "PMID 9486643",
+    pmid: "9486643",
+    doi: "10.1038/35784",
+    url: pubmed("9486643"),
     accessed: ACCESSED,
     read: "bibliographic-only",
   },
 ];
+
+export function getSource(id: string): Source {
+  const source = sources.find((s) => s.id === id);
+  if (!source) throw new Error(`Unknown source: ${id}`);
+  return source;
+}
+
+/** Short citation, for example "Willett et al., 2021, Nature". */
+export function shortCitation(source: Source): string {
+  const first = source.authors.split(",")[0].replace(/\s+[A-Z]+$/, "");
+  const etAl = source.authors.includes(",") ? " et al." : "";
+  return `${first}${etAl}, ${source.year}, ${source.venue}`;
+}

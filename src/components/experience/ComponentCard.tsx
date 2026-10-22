@@ -15,8 +15,9 @@ type ComponentCardProps = {
 
 /**
  * Teaches one component: what it represents, its role, how it connects to the
- * next stage and how mature it is. Conceptual only: it describes an imagined
- * concept prototype, and maturity stays pending until sources are verified.
+ * next stage and how mature its underlying technology is. The helmet itself
+ * is always a concept prototype; the maturity is the technology's, not the
+ * helmet's.
  */
 export function ComponentCard({
   component,
@@ -27,7 +28,7 @@ export function ComponentCard({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col items-start gap-3">
-        <Badge tone="violet">{CONTEXT_LABELS.concept}</Badge>
+        <Badge tone="violet">{CONTEXT_LABELS.conceptPrototype}</Badge>
         {headingId ? (
           <h3 id={headingId} className="text-2xl leading-tight font-semibold">
             {component.name}
@@ -49,7 +50,9 @@ export function ComponentCard({
           <dd className="type-body mt-1">{component.connects}</dd>
         </div>
         <div>
-          <dt className="type-label text-muted">Maturity</dt>
+          <dt className="type-label text-muted">
+            {component.claimId ? "Underlying technology" : "Maturity"}
+          </dt>
           <dd className="mt-2 flex flex-col items-start gap-2">
             {component.maturity ? (
               <MaturityBadge classification={component.maturity} />
@@ -57,6 +60,9 @@ export function ComponentCard({
               <Badge dashed>NOT CLASSIFIED</Badge>
             )}
             <span className="type-meta">{component.maturityNote}</span>
+            {component.formNote ? (
+              <span className="type-meta">{component.formNote}</span>
+            ) : null}
           </dd>
         </div>
       </dl>

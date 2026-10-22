@@ -1,10 +1,10 @@
-import { claims } from "./claims";
+import { publicMaturity, publicWording, requireWording } from "./claims";
 import type { Classification } from "./maturity";
 
 /**
  * The four kinds of returning information shown in "Seeing is not feeling".
- * Wording comes from the claims register. Every public badge stays pending
- * until final verification, whatever the register's source status.
+ * Badges and research wording come from the claims register, so they only
+ * show what has been approved.
  */
 export type FeedbackKindId =
   "touch" | "pressure" | "proprioception" | "temperature";
@@ -14,9 +14,9 @@ export type FeedbackKind = {
   number: string;
   name: string;
   claimId: string;
-  /** Always pending in the interface until the claim is VERIFIED. */
-  badge: Classification;
-  /** Approved research wording, or null when none is approved. */
+  /** Maturity from the claims register (pending while unresolved). */
+  badge: Classification | null;
+  /** Approved research wording, or null while the claim is not public. */
   evidence: string | null;
   /** What this page's simulation shows for the kind. */
   simulation: string;
@@ -24,18 +24,14 @@ export type FeedbackKind = {
   notSimulated: boolean;
 };
 
-function wordingOf(claimId: string): string | null {
-  return claims.find((claim) => claim.id === claimId)?.wording ?? null;
-}
-
 export const FEEDBACK_KINDS: readonly FeedbackKind[] = [
   {
     id: "touch",
     number: "01",
     name: "TOUCH",
     claimId: "feedback-touch",
-    badge: "requires-source-verification",
-    evidence: wordingOf("feedback-touch"),
+    badge: publicMaturity("feedback-touch"),
+    evidence: publicWording("feedback-touch"),
     simulation: "A thin ring marks the contact point. Nothing is felt.",
     notSimulated: false,
   },
@@ -44,8 +40,8 @@ export const FEEDBACK_KINDS: readonly FeedbackKind[] = [
     number: "02",
     name: "PRESSURE",
     claimId: "feedback-pressure",
-    badge: "requires-source-verification",
-    evidence: wordingOf("feedback-pressure"),
+    badge: publicMaturity("feedback-pressure"),
+    evidence: publicWording("feedback-pressure"),
     simulation:
       "A slightly stronger ring marks a firmer contact. Nothing is felt.",
     notSimulated: false,
@@ -55,8 +51,8 @@ export const FEEDBACK_KINDS: readonly FeedbackKind[] = [
     number: "03",
     name: "POSITION / PROPRIOCEPTION",
     claimId: "feedback-proprioception",
-    badge: "requires-source-verification",
-    evidence: wordingOf("feedback-proprioception"),
+    badge: publicMaturity("feedback-proprioception"),
+    evidence: publicWording("feedback-proprioception"),
     simulation:
       "An arc marks the angle of the virtual arm. It is illustrative only.",
     notSimulated: false,
@@ -66,9 +62,10 @@ export const FEEDBACK_KINDS: readonly FeedbackKind[] = [
     number: "04",
     name: "TEMPERATURE",
     claimId: "feedback-temperature",
-    badge: "requires-source-verification",
-    evidence: null,
-    simulation: "Not simulated. This stays pending until it is sourced.",
+    badge: publicMaturity("feedback-temperature"),
+    evidence: publicWording("feedback-temperature"),
+    simulation:
+      "Not simulated. The research is skin-based, and nothing on this page delivers temperature.",
     notSimulated: true,
   },
 ];
@@ -91,23 +88,21 @@ export type CompareMode = {
 };
 
 /**
- * Narrow, hedged descriptions. Current VR is described only as far as the
- * project owner approved; it is never called visual-only.
+ * Narrow, hedged descriptions from the claims register. Current VR is never
+ * called visual-only.
  */
 export const COMPARE_MODES: readonly CompareMode[] = [
   {
     id: "current",
     label: "CURRENT VR INTERACTION",
-    description:
-      "Visual interaction and, in some systems, external or wearable haptic cues.",
+    description: requireWording("feedback-vr-haptics"),
     contact: "CONTACT, then a visual interaction cue.",
     tags: ["SIMULATION"],
   },
   {
     id: "concept",
     label: "B-NEURA CONCEPT",
-    description:
-      "Explores a conceptual feedback pathway associated with the neural-interface loop. In research, a few people with paralysis or amputation have had touch-like sensations evoked. It is not demonstrated here.",
+    description: requireWording("feedback-bneura-concept"),
     contact:
       "CONTACT, then a simulated feedback pathway through the feedback interface, toward the user.",
     tags: ["NOT DEMONSTRATED HERE", "SIMULATION", "CONCEPT"],

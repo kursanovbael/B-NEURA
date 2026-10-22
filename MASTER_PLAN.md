@@ -362,6 +362,15 @@ Three columns using the shared maturity model:
 
 The examples above are starting points. Each item must be backed by a verified claim and qualified (setting, scale, users) so laboratory or clinical capabilities are not read as consumer products.
 
+Phase 9 decisions (approved):
+
+- Complex brain-controlled movement, speech, and assistive-device demonstrations are EXPERIMENTAL when the evidence comes from small studies with implanted electrodes. They are kept separate from the broader availability of EEG sensors and VR.
+- Concepts and definitions (agency, body ownership, embodiment) carry no maturity badge; they are not technologies.
+- NeuroHelmet parts classify the underlying technology, never the helmet's imagined form. The helmet itself is always labeled CONCEPT PROTOTYPE.
+- Temperature is shown only as experimental, skin-based thermal feedback, never as something delivered to the brain, and stays NOT SIMULATED.
+- FUTURE CONCEPT items are B-NEURA design goals. They are not presented as demonstrated, and any factual statement about their capabilities still needs evidence.
+- The section shows concise citations now; Phase 11 provides the fuller Sources experience.
+
 ### Section 10 — The Future
 
 - Visual timeline: TODAY (VR) → BCI → brain-controlled interaction → sensory feedback → virtual embodiment → future Neuro-VR.
@@ -608,7 +617,9 @@ A simple typed list of claims. Minimum fields:
 | `id` | Stable claim id |
 | `text` | The claim text |
 | `maturity` | Maturity classification (shared model), or pending |
-| `sourceStatus` | `UNVERIFIED` → `SOURCE_FOUND` → `VERIFIED` |
+| `sourceStatus` | `UNVERIFIED` → `SOURCE_FOUND` → `VERIFIED`; `NOT_REQUIRED` only for B-NEURA design goals |
+| `kind` | `technology`, `finding`, `definition`, or `design-goal`; definitions and findings have no maturity |
+| `verification` | Approval date and basis (`full-text` or `abstract`); abstract basis only for narrow claims |
 | `sourceRef` | Reference to a record in `sources` (empty until found) |
 | `notes` | Caveats, scope, or reviewer notes |
 

@@ -31,7 +31,7 @@ export function ExperienceNav({
 
         <nav
           aria-label="Chapters"
-          className="pointer-events-auto hidden lg:block"
+          className="pointer-events-auto hidden xl:block"
         >
           <ol className="flex items-center gap-6">
             {CHAPTERS.map((chapter, i) => (
@@ -55,7 +55,7 @@ export function ExperienceNav({
         </nav>
 
         <div className="flex items-center gap-3">
-          <p className="text-muted pointer-events-none text-xs lg:hidden">
+          <p className="text-muted pointer-events-none text-xs xl:hidden">
             {CHAPTERS[activeChapter].name}
           </p>
           <Badge tone="violet" className="hidden sm:inline-flex">

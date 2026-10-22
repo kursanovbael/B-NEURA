@@ -14,7 +14,7 @@ type FeedbackKindsProps = {
 /**
  * The four kinds of information that have been studied. Selecting one changes
  * the scene and shows three separate layers: research evidence, this
- * simulation, and future concept. Every maturity badge stays pending.
+ * simulation, and future concept. Badges come from the claims register.
  */
 export function FeedbackKinds({ selected, onSelect }: FeedbackKindsProps) {
   const kind = FEEDBACK_KINDS.find((entry) => entry.id === selected) ?? null;
@@ -49,14 +49,17 @@ export function FeedbackKinds({ selected, onSelect }: FeedbackKindsProps) {
 
       {kind ? (
         <div className="flex flex-col gap-2.5 text-sm" aria-live="polite">
-          <MaturityBadge classification={kind.badge} className="self-start" />
-          <p>
-            <span className="type-label text-muted block">
-              RESEARCH EVIDENCE
-            </span>
-            {kind.evidence ??
-              "No approved research wording yet. This stays pending."}
-          </p>
+          {kind.badge ? (
+            <MaturityBadge classification={kind.badge} className="self-start" />
+          ) : null}
+          {kind.evidence ? (
+            <p>
+              <span className="type-label text-muted block">
+                RESEARCH EVIDENCE
+              </span>
+              {kind.evidence}
+            </p>
+          ) : null}
           <p>
             <span className="type-label text-muted block">
               B-NEURA SIMULATION
@@ -70,8 +73,8 @@ export function FeedbackKinds({ selected, onSelect }: FeedbackKindsProps) {
         </div>
       ) : (
         <p className="text-muted text-sm">
-          Nothing selected yet. Every badge here stays pending until its claim
-          is verified.
+          Nothing selected yet. Each kind shows how mature the research is and
+          what this simulation does. Nothing on this page produces sensations.
         </p>
       )}
     </div>

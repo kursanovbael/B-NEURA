@@ -43,6 +43,8 @@ export function StopBlock({
     stop.chapter === "flow" ||
     stop.chapter === "feedback" ||
     stop.chapter === "embodiment";
+  // Current Science needs the full width for its three columns.
+  const isScience = stop.chapter === "science";
   const nextStop = STOPS[index + 1];
 
   return (
@@ -52,18 +54,27 @@ export function StopBlock({
       data-stop={index}
       aria-labelledby={headingId}
       className={cn(
-        "pointer-events-none relative z-10 flex items-end pb-5 md:pb-0",
-        isExploded || isFlow ? "md:items-start md:pt-28" : "md:items-center",
-        isHero || isExploded || isFlow ? "min-h-dvh" : "min-h-[85dvh]",
+        "pointer-events-none relative flex items-end pb-5 md:pb-0",
+        // Current Science sits above the scene's floating labels (z-20, earlier
+        // in the page), which would otherwise draw over its text.
+        isScience ? "z-20" : "z-10",
+        isExploded || isFlow || isScience
+          ? "md:items-start md:pt-28"
+          : "md:items-center",
+        isHero || isExploded || isFlow || isScience
+          ? "min-h-dvh"
+          : "min-h-[85dvh]",
       )}
     >
       <div className="container-page">
         <div
           className={cn(
             "pointer-events-auto flex w-full flex-col gap-5",
-            "bg-background/90 border-border max-h-[46dvh] overflow-y-auto rounded-md border p-5 md:max-h-none md:overflow-visible",
-            "md:bg-transparent md:border-0 md:p-0",
-            isHero ? "md:max-w-xl" : "md:max-w-md",
+            "bg-background/90 border-border rounded-md border p-5",
+            isScience
+              ? "md:bg-background/95 md:p-8"
+              : "max-h-[46dvh] overflow-y-auto md:max-h-none md:overflow-visible md:border-0 md:bg-transparent md:p-0",
+            isHero ? "md:max-w-xl" : isScience ? "" : "md:max-w-md",
           )}
         >
           {stop.chapterHeadline && !isHero ? (

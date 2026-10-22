@@ -10,6 +10,15 @@ export type PendingVerification = "requires-source-verification";
 
 export type Classification = MaturityLevel | PendingVerification;
 
+/** What each maturity level means (MASTER_PLAN section 8.1). */
+export const MATURITY_MEANINGS: Record<MaturityLevel, string> = {
+  "available-today": "Exists and is in real use.",
+  experimental:
+    "Demonstrated in research settings; not a mature or widely available capability.",
+  "future-concept":
+    "B-NEURA design goals. Not demonstrated in the form described.",
+};
+
 export const MATURITY_LABELS: Record<Classification, string> = {
   "available-today": "AVAILABLE TODAY",
   experimental: "EXPERIMENTAL",

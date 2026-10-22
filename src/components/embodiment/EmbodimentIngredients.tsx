@@ -33,9 +33,7 @@ export function EmbodimentIngredients({
   const shown = INGREDIENTS.filter((entry) => switches[entry.id]);
   return (
     <div className="flex flex-col gap-3">
-      {INGREDIENTS_LINE ? (
-        <p className="text-foreground text-sm">{INGREDIENTS_LINE}</p>
-      ) : null}
+      <p className="text-foreground text-sm">{INGREDIENTS_LINE}</p>
 
       <div
         role="group"
@@ -77,17 +75,20 @@ export function EmbodimentIngredients({
           shown.map((entry) => (
             <div key={entry.id} className="flex flex-col gap-2">
               <p className="type-label text-foreground">{entry.name}</p>
-              <MaturityBadge
-                classification={entry.badge}
-                className="self-start"
-              />
-              <p>
-                <span className="type-label text-muted block">
-                  RESEARCH EVIDENCE
-                </span>
-                {entry.evidence ??
-                  "No approved research wording yet. This stays pending."}
-              </p>
+              {entry.badge ? (
+                <MaturityBadge
+                  classification={entry.badge}
+                  className="self-start"
+                />
+              ) : null}
+              {entry.evidence ? (
+                <p>
+                  <span className="type-label text-muted block">
+                    RESEARCH EVIDENCE
+                  </span>
+                  {entry.evidence}
+                </p>
+              ) : null}
               <p>
                 <span className="type-label text-muted block">
                   B-NEURA SIMULATION

@@ -1,4 +1,3 @@
-import { MaturityBadge } from "@/components/ui/MaturityBadge";
 import {
   EMBODIMENT_CONCEPTS,
   NOT_MEASURED_LINE,
@@ -12,8 +11,9 @@ type EmbodimentConceptsProps = {
 };
 
 /**
- * Three ideas from embodiment research, one at a time. Each shows its pending
- * definition and the reminder that this page explains, never measures.
+ * Three ideas from embodiment research, one at a time. Each shows its
+ * definition and the reminder that this page explains, never measures. They
+ * are concepts, not technologies, so they carry no maturity badge.
  */
 export function EmbodimentConcepts({
   selected,
@@ -52,20 +52,14 @@ export function EmbodimentConcepts({
 
       {concept ? (
         <div className="flex flex-col gap-2.5 text-sm" aria-live="polite">
-          <MaturityBadge
-            classification={concept.badge}
-            className="self-start"
-          />
           <p>
             <span className="type-label text-muted block">DEFINITION</span>
-            {concept.definition ??
-              "No approved definition yet. This stays pending."}
+            {concept.definition}
           </p>
         </div>
       ) : (
         <p className="text-muted text-sm">
-          Nothing selected yet. Every definition here stays pending until its
-          claim is verified.
+          Nothing selected yet. Select an idea to read a short definition.
         </p>
       )}
 

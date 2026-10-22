@@ -1,11 +1,13 @@
+import { publicMaturity, requireWording } from "./claims";
 import type { Classification } from "./maturity";
 
 /**
  * Teaching content for each conceptual NeuroHelmet component. Every component
  * explains what it represents, its role, how it connects to the next stage and
  * how mature it is. Everything describes an imagined concept prototype, not
- * existing hardware. Maturity stays pending until verified sources exist (see
- * the claims register); `null` means the part is not a technology.
+ * existing hardware. Maturity classifies the underlying technology a part
+ * stands for, never the helmet's imagined form, and comes from the claims
+ * register; `null` means the part is not a technology.
  */
 export type HelmetComponentId =
   | "outer-shell"
@@ -27,12 +29,24 @@ export type HelmetComponent = {
   connects: string;
   /** The component that follows along the path of the simulated signal. */
   nextId: HelmetComponentId;
-  /** null: not a technology, so it is not classified. */
+  /** Maturity of the underlying technology. null: not a technology. */
   maturity: Classification | null;
+  /** The underlying technology, from the claims register, or why it is not classified. */
   maturityNote: string;
-  /** Claim in the register that must be verified before classifying. */
+  /** How this part of the helmet itself relates to the concept prototype. */
+  formNote: string | null;
+  /** Claim in the register for the underlying technology. */
   claimId: string | null;
 };
+
+/** Maturity and note for a part that stands for a technology. */
+function fromClaim(claimId: string) {
+  return {
+    maturity: publicMaturity(claimId),
+    maturityNote: requireWording(claimId),
+    claimId,
+  };
+}
 
 export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
   {
@@ -48,6 +62,7 @@ export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
     maturity: null,
     maturityNote:
       "Not a technology, so it is not classified. It only marks where a user would be.",
+    formNote: null,
     claimId: null,
   },
   {
@@ -60,10 +75,9 @@ export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
     role: "Stands for the step that would pick up a signal. In this simulation the signal is generated, not measured.",
     connects: "Hands the simulated signal to the conceptual AI decoder.",
     nextId: "conceptual-ai-decoder",
-    maturity: "requires-source-verification",
-    maturityNote:
-      "Sensing approaches differ widely. The classification for this component is pending verified sources.",
-    claimId: "helmet-neural-signal-acquisition-maturity",
+    ...fromClaim("helmet-neural-signal-acquisition-maturity"),
+    formNote:
+      "The sensor layer drawn here is part of the concept prototype. In this simulation nothing is measured.",
   },
   {
     id: "conceptual-ai-decoder",
@@ -76,10 +90,9 @@ export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
     connects:
       "Passes that representation on to the virtual body, which sits outside the helmet. Feedback then returns through the feedback interface.",
     nextId: "feedback-interface",
-    maturity: "requires-source-verification",
-    maturityNote:
-      "The classification for this component is pending verified sources.",
-    claimId: "helmet-conceptual-ai-decoder-maturity",
+    ...fromClaim("helmet-conceptual-ai-decoder-maturity"),
+    formNote:
+      "The module drawn here is part of the concept prototype. In this simulation nothing is decoded.",
   },
   {
     id: "feedback-interface",
@@ -92,10 +105,9 @@ export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
     connects:
       "Closes the loop: information returns toward the user head position.",
     nextId: "internal-support",
-    maturity: "requires-source-verification",
-    maturityNote:
-      "Nothing on this page can produce real sensations. The classification for this component is pending verified sources.",
-    claimId: "helmet-feedback-interface-maturity",
+    ...fromClaim("helmet-feedback-interface-maturity"),
+    formNote:
+      "A wearable feedback band like this one is part of the concept prototype; it does not exist. Nothing on this page produces real sensations.",
   },
   {
     id: "internal-support",
@@ -109,6 +121,7 @@ export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
     maturity: null,
     maturityNote:
       "A structural idea, not a scientific technology, so it is not classified.",
+    formNote: null,
     claimId: null,
   },
   {
@@ -122,10 +135,9 @@ export const HELMET_COMPONENTS: readonly HelmetComponent[] = [
     connects:
       "Everything else sits inside it. Follow the signal path again from the head position.",
     nextId: "user-head-position",
-    maturity: "requires-source-verification",
-    maturityNote:
-      "The display band stands for VR display technology. Its classification is pending verified sources.",
-    claimId: "helmet-outer-shell-maturity",
+    ...fromClaim("helmet-outer-shell-maturity"),
+    formNote:
+      "The display band stands for VR display technology. The helmet itself is a concept prototype.",
   },
 ];
 

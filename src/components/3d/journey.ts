@@ -169,6 +169,14 @@ const STOP_STATES: Record<StopId, StopState> = {
   control: FLOW_STOP,
   concepts: FLOW_STOP,
   ingredients: FLOW_STOP,
+  // Current Science: the assembled helmet steps back behind the columns.
+  science: {
+    position: [2.9, 0.9, 5.6],
+    target: [0, 0.15, 0],
+    yaw: -0.6,
+    shell: 0.55,
+    focus: "all",
+  },
   exploded: {
     position: [3.5, 1.1, 6.9],
     target: [0, 0.55, 0],

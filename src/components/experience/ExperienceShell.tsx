@@ -21,6 +21,7 @@ import {
 } from "@/components/embodiment/EmbodimentIngredients";
 import { VirtualControl } from "@/components/embodiment/VirtualControl";
 import { FeedbackCompare } from "@/components/flow/FeedbackCompare";
+import { CurrentScience } from "@/components/science/CurrentScience";
 import { FeedbackKinds } from "@/components/flow/FeedbackKinds";
 import { FlowControls } from "@/components/flow/FlowControls";
 import { FlowLabels } from "@/components/flow/FlowLabels";
@@ -283,6 +284,8 @@ export function ExperienceShell() {
             onToggle={toggleIngredient}
           />
         );
+      case "science":
+        return <CurrentScience />;
       default:
         return null;
     }

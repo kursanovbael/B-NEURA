@@ -1,13 +1,21 @@
+import { requireWording } from "./claims";
 import type { HelmetComponentId } from "./helmetComponents";
 
 /**
  * The story told around the NeuroHelmet. A "stop" is one block of text with a
  * matching state of the helmet; scrolling moves from stop to stop. All copy is
- * conceptual. Statements that would be scientific facts are held back or
- * hedged until they are verified (see the claims register).
+ * conceptual. Scientific statements come from the claims register and appear
+ * only once they are verified.
  */
 export type ChapterId =
-  "arrive" | "gap" | "idea" | "inside" | "flow" | "feedback" | "embodiment";
+  | "arrive"
+  | "gap"
+  | "idea"
+  | "inside"
+  | "flow"
+  | "feedback"
+  | "embodiment"
+  | "science";
 
 export type Chapter = {
   id: ChapterId;
@@ -29,6 +37,7 @@ export const CHAPTERS: readonly Chapter[] = [
     anchor: "seeing-is-not-feeling",
   },
   { id: "embodiment", name: "Embodiment", anchor: "virtual-embodiment" },
+  { id: "science", name: "Current Science", anchor: "current-science" },
 ];
 
 export type StopId =
@@ -50,7 +59,8 @@ export type StopId =
   | "kinds"
   | "control"
   | "concepts"
-  | "ingredients";
+  | "ingredients"
+  | "science";
 
 export type Stop = {
   id: StopId;
@@ -75,8 +85,7 @@ export const STOPS: readonly Stop[] = [
   {
     id: "gap",
     chapter: "gap",
-    headline:
-      "When the body stops responding, the brain may not stop intending.",
+    headline: requireWording("gap-intention-persists"),
     body: [
       "Intending to move and moving are two separate things. This concept explores a pathway that does not depend on the body moving.",
       "What if the brain could communicate with another body?",
@@ -217,6 +226,15 @@ export const STOPS: readonly Stop[] = [
     headline: "Ingredients studied",
     body: [
       "Research has looked at several factors that may help a virtual or artificial limb feel like part of the body. Each switch shows one of them on its own. They are not a recipe.",
+    ],
+  },
+  {
+    id: "science",
+    chapter: "science",
+    chapterHeadline: "Current Science",
+    headline: "What exists, what is experimental, what is a concept",
+    body: [
+      "Every technology on this page, sorted on one maturity scale. Experimental results come from small research studies, not from products, and design goals are B-NEURA's own concepts.",
     ],
   },
 ];

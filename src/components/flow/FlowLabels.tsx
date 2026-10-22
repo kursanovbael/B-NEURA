@@ -3,8 +3,10 @@
 import type { RefObject } from "react";
 import type { FlowLabelElements } from "@/components/3d/ExperienceDriver";
 import type { FlowLabelId } from "@/components/3d/flowVisuals";
-import type { FeedbackKindId } from "@/content/feedbackKinds";
+import { publicMaturity } from "@/content/claims";
 import { CONTEXT_LABELS } from "@/content/contextLabels";
+import { FEEDBACK_KINDS, type FeedbackKindId } from "@/content/feedbackKinds";
+import { MATURITY_LABELS, type Classification } from "@/content/maturity";
 import { DEFAULT_INTENTION, FLOW_EVENT_LABELS } from "@/content/systemFlow";
 import { cn } from "@/lib/cn";
 
@@ -16,8 +18,8 @@ type LabelSpec = {
   details?: readonly string[];
   /** Show the details only while this label is the active one. */
   detailsWhenActive?: boolean;
-  /** Adds an amber line: the item is still pending verification. */
-  pending?: boolean;
+  /** Adds an amber line with the maturity of the research behind the item. */
+  maturity?: Classification | null;
   tone: "signal" | "violet" | "intention" | "feedback" | "neutral";
 };
 
@@ -75,12 +77,10 @@ const LABELS: readonly LabelSpec[] = [
     number: "",
     name: "Arm angle",
     details: [CONTEXT_LABELS.simulation, "ILLUSTRATIVE"],
-    pending: true,
+    maturity: publicMaturity("feedback-proprioception"),
     tone: "neutral",
   },
 ];
-
-const PENDING_TEXT = "REQUIRES SOURCE VERIFICATION";
 
 /** Details on the hand while the visitor moves it (Embodiment). */
 const CONTROLLED_HAND_DETAILS = [
@@ -90,21 +90,27 @@ const CONTROLLED_HAND_DETAILS = [
 
 /** The label that follows the selected feedback kind (touch, pressure, temperature). */
 function kindLabel(kind: FeedbackKindId | null): Partial<LabelSpec> {
+  const maturity =
+    FEEDBACK_KINDS.find((entry) => entry.id === kind)?.badge ?? null;
   switch (kind) {
     case "touch":
       return {
         name: "Touch: contact ring",
         details: [CONTEXT_LABELS.simulation, "NOTHING IS FELT"],
-        pending: true,
+        maturity,
       };
     case "pressure":
       return {
         name: "Pressure: firmer ring",
         details: [CONTEXT_LABELS.simulation, "NOTHING IS FELT"],
-        pending: true,
+        maturity,
       };
     case "temperature":
-      return { name: "Temperature", details: ["NOT SIMULATED"], pending: true };
+      return {
+        name: "Temperature: skin-based research",
+        details: ["NOT SIMULATED"],
+        maturity,
+      };
     default:
       return {};
   }
@@ -190,9 +196,9 @@ export function FlowLabels({ flowLabelEls, kind, control }: FlowLabelsProps) {
                   {line}
                 </span>
               ))}
-              {label.pending ? (
+              {label.maturity ? (
                 <span className="bg-background/80 text-status-warn mt-px block rounded-sm px-1.5 py-0.5 text-[0.625rem] font-semibold tracking-wider md:text-[0.6875rem]">
-                  {PENDING_TEXT}
+                  {MATURITY_LABELS[label.maturity]}
                 </span>
               ) : null}
             </span>
