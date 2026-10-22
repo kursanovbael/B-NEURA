@@ -1,7 +1,7 @@
 import { MaturityBadge } from "@/components/ui/MaturityBadge";
 import { MATURITY_MEANINGS } from "@/content/maturity";
 import { scienceColumns } from "@/content/science";
-import { shortCitation } from "@/content/sources";
+import { Citations } from "./Citations";
 
 const COLUMNS = scienceColumns();
 
@@ -33,29 +33,7 @@ export function CurrentScience() {
                   <p className="text-foreground font-semibold">{item.title}</p>
                   <p className="type-label text-muted">{item.setting}</p>
                   <p className="text-foreground text-sm">{wording}</p>
-                  {citations.length > 0 ? (
-                    <p className="type-meta">
-                      <span className="sr-only">Sources: </span>
-                      {citations.map((source, i) => (
-                        <span key={source.id}>
-                          {i > 0 ? "; " : null}
-                          <a
-                            href={source.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            title={source.title}
-                            className="hover:text-foreground underline decoration-dotted underline-offset-2"
-                          >
-                            {shortCitation(source)}
-                          </a>
-                        </span>
-                      ))}
-                    </p>
-                  ) : (
-                    <p className="type-meta">
-                      A B-NEURA concept, so there is no study to cite.
-                    </p>
-                  )}
+                  <Citations citations={citations} />
                 </li>
               ))}
             </ul>

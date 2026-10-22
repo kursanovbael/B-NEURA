@@ -15,7 +15,8 @@ export type ChapterId =
   | "flow"
   | "feedback"
   | "embodiment"
-  | "science";
+  | "science"
+  | "future";
 
 export type Chapter = {
   id: ChapterId;
@@ -38,6 +39,7 @@ export const CHAPTERS: readonly Chapter[] = [
   },
   { id: "embodiment", name: "Embodiment", anchor: "virtual-embodiment" },
   { id: "science", name: "Current Science", anchor: "current-science" },
+  { id: "future", name: "Future", anchor: "the-future" },
 ];
 
 export type StopId =
@@ -60,7 +62,8 @@ export type StopId =
   | "control"
   | "concepts"
   | "ingredients"
-  | "science";
+  | "science"
+  | "future";
 
 export type Stop = {
   id: StopId;
@@ -235,6 +238,15 @@ export const STOPS: readonly Stop[] = [
     headline: "What exists, what is experimental, what is a concept",
     body: [
       "Every technology on this page, sorted on one maturity scale. Experimental results come from small research studies, not from products, and design goals are B-NEURA's own concepts.",
+    ],
+  },
+  {
+    id: "future",
+    chapter: "future",
+    chapterHeadline: "Beyond the Screen.",
+    headline: "From today's VR toward the B-NEURA concept",
+    body: [
+      "Six stages, from virtual reality as it exists today to the B-NEURA design goal. Select a stage to see what it means, where the research stands and what remains unresolved.",
     ],
   },
 ];

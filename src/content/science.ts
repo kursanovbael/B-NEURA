@@ -1,6 +1,6 @@
-import { getClaim, isPublic } from "./claims";
+import { evidenceFor } from "./evidence";
 import type { MaturityLevel } from "./maturity";
-import { getSource, type Source } from "./sources";
+import type { Source } from "./sources";
 
 /**
  * Items of the Current Science section. Each points at a claim in the
@@ -100,15 +100,10 @@ export function scienceColumns(): readonly ScienceColumn[] {
   return COLUMN_ORDER.map((level) => ({
     level,
     entries: SCIENCE_ITEMS.flatMap((item) => {
-      const claim = getClaim(item.claimId);
-      if (!isPublic(claim) || claim.maturity !== level || !claim.wording)
-        return [];
+      const evidence = evidenceFor(item.claimId);
+      if (!evidence || evidence.maturity !== level) return [];
       return [
-        {
-          item,
-          wording: claim.wording,
-          citations: claim.sourceRefs.map(getSource),
-        },
+        { item, wording: evidence.wording, citations: evidence.citations },
       ];
     }),
   }));

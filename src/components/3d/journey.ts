@@ -177,6 +177,14 @@ const STOP_STATES: Record<StopId, StopState> = {
     shell: 0.55,
     focus: "all",
   },
+  // The Future: the whole concept prototype, closed again, behind the roadmap.
+  future: {
+    position: [2.2, 0.7, 4.2],
+    target: [0, 0.05, 0],
+    yaw: -0.3,
+    shell: 1,
+    focus: "all",
+  },
   exploded: {
     position: [3.5, 1.1, 6.9],
     target: [0, 0.55, 0],
