@@ -10,7 +10,7 @@ import {
 } from "./applyHelmetState";
 import { applyFlow, findFlowObjects, type FlowObjects } from "./applyFlow";
 import { applyCameraPose } from "./CameraRig";
-import { FLOW_LABEL_ANCHORS } from "./flowPaths";
+import { FLOW_LABEL_ANCHORS, handPointAt } from "./flowPaths";
 import {
   FLOW_LABEL_IDS,
   contactFocus,
@@ -163,7 +163,12 @@ export function ExperienceDriver({
     if (!flowObjects.current?.group)
       flowObjects.current = findFlowObjects(state.scene);
     stepFlow(flow.current, delta, instant);
-    const visuals = flowVisuals(flow.current.shown, flow.current.emphasis);
+    const controlled = flow.current.mode.hand !== null;
+    const visuals = flowVisuals(
+      flow.current.shown,
+      flow.current.emphasis,
+      controlled ? flow.current.hand : null,
+    );
     const portrait = width / height < 1.2;
     const close = portrait
       ? journey.flowWeight * contactFocus(flow.current.shown)
@@ -200,11 +205,14 @@ export function ExperienceDriver({
       );
     }
 
-    // Numbered flow labels follow their points on the route.
+    // Numbered flow labels follow their points on the route. A hand under the
+    // visitor's control carries its label with it.
     for (const id of FLOW_LABEL_IDS) {
       const el = flowLabelEls.current[id];
       if (!el) continue;
-      point.copy(FLOW_LABEL_ANCHORS[id]).project(state.camera);
+      if (id === "hand" && controlled) handPointAt(visuals.handRaise, point);
+      else point.copy(FLOW_LABEL_ANCHORS[id]);
+      point.project(state.camera);
       const x = (point.x * 0.5 + 0.5) * width;
       const y = (-point.y * 0.5 + 0.5) * height;
       const own = labelWeight(id, visuals);

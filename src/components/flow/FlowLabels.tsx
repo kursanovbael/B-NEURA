@@ -82,6 +82,12 @@ const LABELS: readonly LabelSpec[] = [
 
 const PENDING_TEXT = "REQUIRES SOURCE VERIFICATION";
 
+/** Details on the hand while the visitor moves it (Embodiment). */
+const CONTROLLED_HAND_DETAILS = [
+  CONTEXT_LABELS.simulation,
+  "MOVED BY YOUR POINTER OR KEYS",
+] as const;
+
 /** The label that follows the selected feedback kind (touch, pressure, temperature). */
 function kindLabel(kind: FeedbackKindId | null): Partial<LabelSpec> {
   switch (kind) {
@@ -115,6 +121,8 @@ const TONE: Record<LabelSpec["tone"], string> = {
 type FlowLabelsProps = {
   flowLabelEls: RefObject<FlowLabelElements>;
   kind: FeedbackKindId | null;
+  /** The visitor moves the hand (Embodiment). */
+  control: boolean;
 };
 
 /**
@@ -123,12 +131,16 @@ type FlowLabelsProps = {
  * and data-active. They repeat text that is also in the panel, so they are
  * hidden from assistive technology.
  */
-export function FlowLabels({ flowLabelEls, kind }: FlowLabelsProps) {
+export function FlowLabels({ flowLabelEls, kind, control }: FlowLabelsProps) {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-20">
       {LABELS.map((base) => {
         const label =
-          base.id === "kind" ? { ...base, ...kindLabel(kind) } : base;
+          base.id === "kind"
+            ? { ...base, ...kindLabel(kind) }
+            : base.id === "hand" && control
+              ? { ...base, number: "", details: CONTROLLED_HAND_DETAILS }
+              : base;
         return (
           <div
             key={label.id}

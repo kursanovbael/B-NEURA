@@ -40,7 +40,9 @@ export function StopBlock({
   const isHero = stop.id === "hero";
   const isExploded = stop.id === "exploded";
   const isFlow =
-    stop.id === "flow" || stop.id === "compare" || stop.id === "kinds";
+    stop.chapter === "flow" ||
+    stop.chapter === "feedback" ||
+    stop.chapter === "embodiment";
   const nextStop = STOPS[index + 1];
 
   return (

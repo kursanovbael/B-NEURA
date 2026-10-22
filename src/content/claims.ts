@@ -199,7 +199,7 @@ export const claims: readonly Claim[] = [
     sourceRefs: ["slater-2008", "slater-2009"],
     wording:
       "Seeing a virtual hand respond in step with your actions can help it feel like your own.",
-    notes: `${PENDING_NOTE} Laboratory illusion studies with small groups. Keep hedged.`,
+    notes: `${PENDING_NOTE} Laboratory illusion studies with small groups. Keep hedged. Abstracts re-read 2026-10-21: Slater 2008 induced the illusion with seen and felt touch in sync (visuotactile), not movement. Slater 2009 reports it also with synchronous movement of the real and virtual hand, and a weaker form with motor imagery through a BCI. The "in step with your actions" wording rests on Slater 2009.`,
   },
   {
     id: "embodiment-agency",
@@ -248,5 +248,16 @@ export const claims: readonly Claim[] = [
       "Research suggests that matching what you see, what you do and what you feel may help a virtual or artificial limb feel like part of the body. Results vary and the evidence is limited.",
     notes:
       "Candidate sources, not approved. Present as INGREDIENTS STUDIED, each with its own switch. NOT a causal formula, and never imply that combining all three is stronger. Keep the counter-evidence: in one amputee, motor control alone and sensation alone each produced embodiment, and a closed loop added no significant improvement (Page et al., 2018). The earlier A + B + C = embodiment equation is removed.",
+  },
+  {
+    id: "embodiment-results-vary",
+    text: "In one long-term study of a single person with a hand amputation, movement control alone and sensation alone were each linked to embodiment of the prosthesis, and combining them added no significant improvement.",
+    maturity: "requires-source-verification",
+    suggestedMaturity: null,
+    sourceStatus: "SOURCE_FOUND",
+    sourceRefs: ["page-2018"],
+    wording:
+      "In one long-term study of a single person with a hand amputation, movement control alone and sensation alone were each linked to the prosthesis feeling more like part of the body, and combining them added no significant improvement.",
+    notes: `${PENDING_NOTE} Abstract read 2026-10-21. One participant, 14 months, implanted nerve electrodes and muscle recording leads with a physical prosthesis: not paralysis, not a BCI, not VR. Measures were proprioceptive drift and survey answers. Caveat for the ingredients stop; keep it visible whenever ingredients are shown.`,
   },
 ];

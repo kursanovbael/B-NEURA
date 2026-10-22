@@ -6,11 +6,20 @@ import type {
   FlowLabelElements,
 } from "@/components/3d/ExperienceDriver";
 import {
+  REST_POSE,
   createFlowDriverState,
   setFlowMode,
   setFlowTarget,
   type FlowDriverState,
+  type HandPose,
 } from "@/components/3d/flowVisuals";
+import { EmbodimentConcepts } from "@/components/embodiment/EmbodimentConcepts";
+import {
+  EmbodimentIngredients,
+  INGREDIENTS_OFF,
+  type IngredientSwitches,
+} from "@/components/embodiment/EmbodimentIngredients";
+import { VirtualControl } from "@/components/embodiment/VirtualControl";
 import { FeedbackCompare } from "@/components/flow/FeedbackCompare";
 import { FeedbackKinds } from "@/components/flow/FeedbackKinds";
 import { FlowControls } from "@/components/flow/FlowControls";
@@ -27,7 +36,13 @@ import {
 import type { JourneySource } from "@/components/3d/types";
 import { Container } from "@/components/ui/Container";
 import { Disclaimer } from "@/components/ui/Disclaimer";
-import { CHAPTERS, STOPS, chapterIndexOf } from "@/content/chapters";
+import {
+  CHAPTERS,
+  STOPS,
+  chapterIndexOf,
+  type StopId,
+} from "@/content/chapters";
+import type { EmbodimentConceptId, IngredientId } from "@/content/embodiment";
 import type { CompareModeId, FeedbackKindId } from "@/content/feedbackKinds";
 import type { HelmetComponentId } from "@/content/helmetComponents";
 import { useFlowSequence } from "@/lib/useFlowSequence";
@@ -44,6 +59,9 @@ const EXPLODED_INDEX = STOPS.findIndex((stop) => stop.id === "exploded");
 const FLOW_INDEX = STOPS.findIndex((stop) => stop.id === "flow");
 const COMPARE_INDEX = STOPS.findIndex((stop) => stop.id === "compare");
 const KINDS_INDEX = STOPS.findIndex((stop) => stop.id === "kinds");
+const CONTROL_INDEX = STOPS.findIndex((stop) => stop.id === "control");
+const CONCEPTS_INDEX = STOPS.findIndex((stop) => stop.id === "concepts");
+const INGREDIENTS_INDEX = STOPS.findIndex((stop) => stop.id === "ingredients");
 const TURN_STEP = 0.45;
 
 /**
@@ -63,6 +81,11 @@ export function ExperienceShell() {
   const [tick, setTick] = useState(0);
   const [compareMode, setCompareMode] = useState<CompareModeId>("current");
   const [kind, setKind] = useState<FeedbackKindId | null>(null);
+  const [handPose, setHandPose] = useState<HandPose>(REST_POSE);
+  const [engaged, setEngaged] = useState(false);
+  const [concept, setConcept] = useState<EmbodimentConceptId | null>(null);
+  const [ingredients, setIngredients] =
+    useState<IngredientSwitches>(INGREDIENTS_OFF);
 
   const stopEls = useRef<(HTMLElement | null)[]>(STOPS.map(() => null));
   const interaction = useRef<Interaction>(createInteraction());
@@ -83,6 +106,11 @@ export function ExperienceShell() {
           const index = Number((entry.target as HTMLElement).dataset.stop);
           setActiveStop(index);
           if (index !== KINDS_INDEX) setKind(null);
+          if (index !== CONTROL_INDEX) setEngaged(false);
+          if (index !== CONCEPTS_INDEX) setConcept(null);
+          if (index !== INGREDIENTS_INDEX) setIngredients(INGREDIENTS_OFF);
+          // The visitor's pose lasts for the chapter, then the hand rests.
+          if (STOPS[index].chapter !== "embodiment") setHandPose(REST_POSE);
           if (index !== EXPLODED_INDEX) {
             selectComponent(interaction.current, null);
             setSelected(null);
@@ -101,6 +129,8 @@ export function ExperienceShell() {
   const onFlowStop = activeStop === FLOW_INDEX;
   const onCompare = activeStop === COMPARE_INDEX;
   const onKinds = activeStop === KINDS_INDEX;
+  const onIngredients = activeStop === INGREDIENTS_INDEX;
+  const onEmbodiment = STOPS[activeStop].chapter === "embodiment";
   const sequence = useFlowSequence({ reducedMotion, paused: !onFlowStop });
   const { reset: resetSequence } = sequence;
   useEffect(() => {
@@ -109,21 +139,45 @@ export function ExperienceShell() {
 
   // Which state of the loop the scene shows. "Seeing is not feeling" holds it
   // at contact (current VR interaction) or at the returning feedback (concept).
-  const sceneState = onCompare
-    ? compareMode === "concept"
-      ? 6
-      : 5
-    : onKinds
-      ? 6
-      : sequence.snapshot.index;
+  // Embodiment rests the loop: the visitor moves the hand, nothing is decoded.
+  const sceneState = onEmbodiment
+    ? 0
+    : onCompare
+      ? compareMode === "concept"
+        ? 6
+        : 5
+      : onKinds
+        ? 6
+        : sequence.snapshot.index;
   useEffect(() => {
     setFlowTarget(flowDriver.current, sceneState);
     setFlowMode(flowDriver.current, {
-      cue: onCompare,
+      cue: onCompare || (onIngredients && ingredients.visual),
       kind: onKinds ? kind : null,
-      focus: onCompare || onKinds,
+      focus: onCompare || onKinds || onEmbodiment,
+      intention: onIngredients && ingredients.motor,
+      feedback: onIngredients && ingredients.sensory,
+      hand: onEmbodiment ? handPose : null,
     });
-  }, [sceneState, onCompare, onKinds, kind]);
+  }, [
+    sceneState,
+    onCompare,
+    onKinds,
+    kind,
+    onIngredients,
+    onEmbodiment,
+    ingredients,
+    handPose,
+  ]);
+
+  const moveHand = useCallback((pose: HandPose) => {
+    setHandPose(pose);
+    setEngaged(true);
+  }, []);
+
+  const toggleIngredient = useCallback((id: IngredientId) => {
+    setIngredients((current) => ({ ...current, [id]: !current[id] }));
+  }, []);
 
   const activeChapter = chapterIndexOf(STOPS[activeStop].chapter);
 
@@ -183,8 +237,56 @@ export function ExperienceShell() {
     setTick((t) => t + 1);
   }, []);
 
-  const redrawKey = `${activeStop}:${selected ?? ""}:${tick}:${sceneState}:${compareMode}:${kind ?? ""}`;
+  const redrawKey = `${activeStop}:${selected ?? ""}:${tick}:${sceneState}:${compareMode}:${kind ?? ""}:${handPose.raise}:${handPose.curl}:${ingredients.motor}${ingredients.visual}${ingredients.sensory}`;
   const freeToTurn = activeStop === 0 || activeStop === EXPLODED_INDEX;
+
+  const panelFor = (id: StopId) => {
+    switch (id) {
+      case "flow":
+        return (
+          <div className="flex flex-col gap-4">
+            <FlowControls
+              snapshot={sequence.snapshot}
+              running={sequence.running}
+              reducedMotion={reducedMotion}
+              onStart={sequence.start}
+              onStep={sequence.step}
+              onReset={sequence.reset}
+            />
+            <FlowReadout snapshot={sequence.snapshot} />
+            <FlowStateList snapshot={sequence.snapshot} />
+            <p className="sr-only" aria-live="polite">
+              {sequence.snapshot.state.label}.{" "}
+              {sequence.snapshot.state.description}
+            </p>
+          </div>
+        );
+      case "compare":
+        return <FeedbackCompare mode={compareMode} onChange={setCompareMode} />;
+      case "kinds":
+        return <FeedbackKinds selected={kind} onSelect={setKind} />;
+      case "control":
+        return (
+          <VirtualControl
+            pose={handPose}
+            engaged={engaged}
+            unavailable={unavailable}
+            onChange={moveHand}
+          />
+        );
+      case "concepts":
+        return <EmbodimentConcepts selected={concept} onSelect={setConcept} />;
+      case "ingredients":
+        return (
+          <EmbodimentIngredients
+            switches={ingredients}
+            onToggle={toggleIngredient}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
@@ -210,7 +312,11 @@ export function ExperienceShell() {
         />
       ) : null}
       {!unavailable ? (
-        <FlowLabels flowLabelEls={flowLabelEls} kind={kind} />
+        <FlowLabels
+          flowLabelEls={flowLabelEls}
+          kind={kind}
+          control={onEmbodiment}
+        />
       ) : null}
       <ExperienceNav
         activeChapter={activeChapter}
@@ -229,30 +335,7 @@ export function ExperienceShell() {
             selected={selected}
             onSelect={select}
             onGoToStop={goToStop}
-            panel={
-              stop.id === "compare" ? (
-                <FeedbackCompare mode={compareMode} onChange={setCompareMode} />
-              ) : stop.id === "kinds" ? (
-                <FeedbackKinds selected={kind} onSelect={setKind} />
-              ) : stop.id === "flow" ? (
-                <div className="flex flex-col gap-4">
-                  <FlowControls
-                    snapshot={sequence.snapshot}
-                    running={sequence.running}
-                    reducedMotion={reducedMotion}
-                    onStart={sequence.start}
-                    onStep={sequence.step}
-                    onReset={sequence.reset}
-                  />
-                  <FlowReadout snapshot={sequence.snapshot} />
-                  <FlowStateList snapshot={sequence.snapshot} />
-                  <p className="sr-only" aria-live="polite">
-                    {sequence.snapshot.state.label}.{" "}
-                    {sequence.snapshot.state.description}
-                  </p>
-                </div>
-              ) : null
-            }
+            panel={panelFor(stop.id)}
             setRef={(el) => {
               stopEls.current[index] = el;
             }}

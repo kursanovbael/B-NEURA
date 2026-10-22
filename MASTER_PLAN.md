@@ -347,7 +347,7 @@ A browser-based 3D/interactive simulation of a virtual environment with a virtua
 
 - Headline: "Can a virtual body become your body?"
 - Introduces: agency, body ownership, embodiment, visual feedback, motor intention, sensory feedback.
-- Conceptual relationship: MOTOR INTENTION + VISUAL FEEDBACK + POTENTIAL SENSORY FEEDBACK → VIRTUAL EMBODIMENT.
+- Motor intention, visual feedback, and potential sensory feedback are presented as **ingredients studied**, each shown independently with its own switch. They are not a formula: the site never implies that combining them produces or strengthens embodiment, and the counter-evidence (Page et al., 2018: in one amputee, closed-loop control added no significant improvement over motor control alone or sensation alone) stays visible.
 - Interactive virtual hand moved by pointer or keyboard. Displays **VIRTUAL CONTROL ACTIVE**. Labeled SIMULATION.
 - Uses the shared `VirtualHand` component (no duplicate hand implementation).
 - Must not claim the demo produces or detects embodiment.

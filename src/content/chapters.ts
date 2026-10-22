@@ -7,7 +7,7 @@ import type { HelmetComponentId } from "./helmetComponents";
  * hedged until they are verified (see the claims register).
  */
 export type ChapterId =
-  "arrive" | "gap" | "idea" | "inside" | "flow" | "feedback";
+  "arrive" | "gap" | "idea" | "inside" | "flow" | "feedback" | "embodiment";
 
 export type Chapter = {
   id: ChapterId;
@@ -28,6 +28,7 @@ export const CHAPTERS: readonly Chapter[] = [
     name: "Seeing is not feeling",
     anchor: "seeing-is-not-feeling",
   },
+  { id: "embodiment", name: "Embodiment", anchor: "virtual-embodiment" },
 ];
 
 export type StopId =
@@ -46,7 +47,10 @@ export type StopId =
   | "exploded"
   | "flow"
   | "compare"
-  | "kinds";
+  | "kinds"
+  | "control"
+  | "concepts"
+  | "ingredients";
 
 export type Stop = {
   id: StopId;
@@ -188,6 +192,31 @@ export const STOPS: readonly Stop[] = [
     headline: "What could come back?",
     body: [
       "Four kinds of information have been studied. Select one to see how this simulation represents it, and what the research does and does not show.",
+    ],
+  },
+  {
+    id: "control",
+    chapter: "embodiment",
+    chapterHeadline: "Can a virtual body become your body?",
+    headline: "Move the virtual hand",
+    body: [
+      "Raise the arm and curl the fingers with the pad or the sliders. Raise it all the way to touch the virtual object.",
+    ],
+  },
+  {
+    id: "concepts",
+    chapter: "embodiment",
+    headline: "Three ideas researchers study",
+    body: [
+      "Agency, body ownership and embodiment describe how a body can come to feel like yours. Select one to read a short definition. This page explains them; it does not measure them.",
+    ],
+  },
+  {
+    id: "ingredients",
+    chapter: "embodiment",
+    headline: "Ingredients studied",
+    body: [
+      "Research has looked at several factors that may help a virtual or artificial limb feel like part of the body. Each switch shows one of them on its own. They are not a recipe.",
     ],
   },
 ];

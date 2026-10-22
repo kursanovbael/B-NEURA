@@ -54,7 +54,7 @@ const FRAME_Y = 0.17;
 const HERO_POSITION: Vec3 = [1.75, 0.63, 2.97];
 const HERO_TARGET: Vec3 = [0, 0.02, 0];
 
-/** The flow scene, held for the chapters that explain what returns. */
+/** The flow scene, held for "Seeing is not feeling" and Embodiment. */
 const FLOW_STOP: StopState = {
   position: [2.5, 0.9, 4.8],
   target: [1.0, 0.05, 0.15],
@@ -166,6 +166,9 @@ const STOP_STATES: Record<StopId, StopState> = {
   flow: FLOW_STOP,
   compare: FLOW_STOP,
   kinds: FLOW_STOP,
+  control: FLOW_STOP,
+  concepts: FLOW_STOP,
+  ingredients: FLOW_STOP,
   exploded: {
     position: [3.5, 1.1, 6.9],
     target: [0, 0.55, 0],

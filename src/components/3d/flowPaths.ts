@@ -121,6 +121,16 @@ export const FLOW_CURVES: readonly CatmullRomCurve3[] = [
   ]),
 ];
 
+/** Point near the middle of the hand at a given raise (0 resting, 1 raised). */
+export function handPointAt(raise: number, out: Vector3): Vector3 {
+  const angle = HAND.restAngle + (HAND.raisedAngle - HAND.restAngle) * raise;
+  return out.set(
+    HAND.pivot.x + 0.5 * Math.cos(angle),
+    HAND.pivot.y + 0.5 * Math.sin(angle),
+    HAND.pivot.z,
+  );
+}
+
 /** Arc that shows the angle of the virtual arm. Illustrative only. */
 export const ANGLE_ARC = {
   radius: 0.62,

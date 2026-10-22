@@ -1,5 +1,5 @@
 import type { FeedbackKindId } from "@/content/feedbackKinds";
-import { clamp01, smoothstep } from "./experience";
+import { clamp01, ramp, smoothstep } from "./experience";
 
 /**
  * Pure mapping from the position in the simulated loop to what is drawn.
@@ -58,6 +58,10 @@ export type FlowEmphasis = {
   temperature: number;
   /** Fades the labels of the earlier story steps. */
   focus: number;
+  /** Embodiment: the intention route from the decoder to the hand, on its own. */
+  intention: number;
+  /** Embodiment: the feedback route from the object toward the user, on its own. */
+  feedback: number;
 };
 
 export const NO_EMPHASIS: FlowEmphasis = {
@@ -67,7 +71,38 @@ export const NO_EMPHASIS: FlowEmphasis = {
   arc: 0,
   temperature: 0,
   focus: 0,
+  intention: 0,
+  feedback: 0,
 };
+
+/**
+ * Pose of the virtual hand. `raise` is 0 (resting) to 1 (raised to the
+ * object); `curl` is 0 (fingers open) to 1 (fingers fully curled).
+ */
+export type HandPose = { raise: number; curl: number };
+
+/** Finger curl in radians per joint, from open to fully curled. */
+export const FINGER_CURL = { open: 0.05, closed: 1.25 } as const;
+/** The loop's resting curl (0.7 rad) on the 0 to 1 curl scale. */
+const LOOP_REST_CURL =
+  (0.7 - FINGER_CURL.open) / (FINGER_CURL.closed - FINGER_CURL.open);
+
+/** Where `raise` starts to bring the fingertips onto the object. */
+const CONTACT_FROM = 0.85;
+
+/** 0 to 1: how far a hand raised this much touches the virtual object. */
+export function contactOf(raise: number): number {
+  return ramp(raise, CONTACT_FROM, 1);
+}
+
+/** The hand pose the simulated loop shows at position f. */
+export function handPoseAt(f: number): HandPose {
+  const raise = s(f - 3.5);
+  return { raise, curl: LOOP_REST_CURL * (1 - raise) };
+}
+
+/** The resting pose, also where the visitor's control starts. */
+export const REST_POSE: HandPose = { raise: 0, curl: LOOP_REST_CURL };
 
 export type FlowVisuals = {
   /** 0 to 1 progress along each of the five route segments. */
@@ -80,6 +115,8 @@ export type FlowVisuals = {
   feedbackGlow: number;
   /** 0 (resting) to 1 (raised): the virtual hand movement. */
   handRaise: number;
+  /** 0 (open) to 1 (fully curled): the virtual fingers. */
+  fingerCurl: number;
   /** 0 to 1: the virtual target responds. */
   targetResponse: number;
   /** Visibility of the "represented intention" tag. */
@@ -92,16 +129,21 @@ export type FlowVisuals = {
 
 const s = (x: number) => smoothstep(clamp01(x));
 
+/**
+ * `hand` is set while the visitor controls the virtual hand (Embodiment): the
+ * hand then follows that pose and contact follows the hand, not the loop.
+ */
 export function flowVisuals(
   f: number,
   emphasis: FlowEmphasis = NO_EMPHASIS,
+  hand: HandPose | null = null,
 ): FlowVisuals {
   const paths = [
     s(f),
     s(f - 1),
-    s(f - 3),
-    s((f - 5) * 2),
-    s((f - 5) * 2 - 1),
+    Math.max(s(f - 3), emphasis.intention),
+    Math.max(s((f - 5) * 2), emphasis.feedback),
+    Math.max(s((f - 5) * 2 - 1), emphasis.feedback),
   ] as const;
 
   let pulsePath = -1;
@@ -112,16 +154,20 @@ export function flowVisuals(
     }
   }
 
-  const step = Math.round(f);
+  // Under the visitor's control no loop state is active.
+  const step = hand ? -1 : Math.round(f);
+  const pose = hand ?? handPoseAt(f);
+  const targetResponse = hand ? contactOf(hand.raise) : s((f - 4.5) * 2);
   return {
     paths,
     pulsePath,
     pulseAt: pulsePath >= 0 ? paths[pulsePath] : 0,
     sensorGlow: s(f) * (1 - s(f - 2)),
     decoderGlow: s(f - 1) * (1 - s(f - 4)),
-    feedbackGlow: s(f - 5),
-    handRaise: s(f - 3.5),
-    targetResponse: s((f - 4.5) * 2),
+    feedbackGlow: Math.max(s(f - 5), emphasis.feedback),
+    handRaise: pose.raise,
+    fingerCurl: pose.curl,
+    targetResponse,
     represented: s(f - 2),
     emphasis,
     active: {
@@ -129,8 +175,8 @@ export function flowVisuals(
       sensors: step === 1,
       decoder: step === 2 || step === 3,
       represented: step === 3,
-      hand: step === 4,
-      object: step === 5,
+      hand: hand !== null || step === 4,
+      object: hand ? targetResponse > 0.5 : step === 5,
       feedback: step === 6,
       user: step === 6,
       cue: true,
@@ -155,9 +201,22 @@ export type FlowMode = {
   kind: FeedbackKindId | null;
   /** Fades the labels of the earlier story steps. */
   focus: boolean;
+  /** Embodiment: show the intention route on its own. */
+  intention: boolean;
+  /** Embodiment: show the feedback route on its own. */
+  feedback: boolean;
+  /** Embodiment: the pose the visitor sets, or null when the loop moves the hand. */
+  hand: HandPose | null;
 };
 
-export const FLOW_MODE_OFF: FlowMode = { cue: false, kind: null, focus: false };
+export const FLOW_MODE_OFF: FlowMode = {
+  cue: false,
+  kind: null,
+  focus: false,
+  intention: false,
+  feedback: false,
+  hand: null,
+};
 
 /** State the frame loop keeps between frames. Plain object in a ref. */
 export type FlowDriverState = {
@@ -167,12 +226,16 @@ export type FlowDriverState = {
   shown: number;
   mode: FlowMode;
   emphasis: FlowEmphasis;
+  /** Pose the hand is drawn at. Follows the loop unless the visitor controls it. */
+  hand: HandPose;
 };
 
 /** States travelled per second. */
 const TRAVEL_SPEED = 1.25;
 /** Rate (1/s) at which the emphasis values ease. */
 const EMPHASIS_RATE = 8;
+/** Rate (1/s) at which the hand follows the visitor's control. */
+const HAND_RATE = 12;
 
 export function createFlowDriverState(): FlowDriverState {
   return {
@@ -180,6 +243,7 @@ export function createFlowDriverState(): FlowDriverState {
     shown: 0,
     mode: FLOW_MODE_OFF,
     emphasis: { ...NO_EMPHASIS },
+    hand: { ...REST_POSE },
   };
 }
 
@@ -199,13 +263,16 @@ function emphasisTargets(mode: FlowMode): FlowEmphasis {
     arc: mode.kind === "proprioception" ? 1 : 0,
     temperature: mode.kind === "temperature" ? 1 : 0,
     focus: mode.focus ? 1 : 0,
+    intention: mode.intention ? 1 : 0,
+    feedback: mode.feedback ? 1 : 0,
   };
 }
 
 /**
  * Moves the drawn position toward the page state at a fixed speed. Going
  * backwards (reset, or run again) never replays the loop in reverse: it jumps
- * to just before the target. The emphasis values ease toward the mode.
+ * to just before the target. The emphasis values ease toward the mode. The
+ * hand follows the loop exactly, or eases toward the visitor's pose.
  */
 export function stepFlow(
   state: FlowDriverState,
@@ -228,4 +295,10 @@ export function stepFlow(
     state.emphasis[key] =
       Math.abs(targets[key] - next) < 1e-3 ? targets[key] : next;
   }
+
+  const wanted = state.mode.hand ?? handPoseAt(state.shown);
+  const follow =
+    instant || !state.mode.hand ? 1 : 1 - Math.exp(-HAND_RATE * delta);
+  state.hand.raise += (wanted.raise - state.hand.raise) * follow;
+  state.hand.curl += (wanted.curl - state.hand.curl) * follow;
 }

@@ -7,6 +7,7 @@ import {
 } from "three";
 import { FLOW_CURVES, FLOW_PATH_KIND, HAND } from "./flowPaths";
 import {
+  FINGER_CURL,
   FLOW_PATH_COUNT,
   FLOW_ROUTE_COUNT,
   type FlowVisuals,
@@ -74,8 +75,8 @@ const REST = {
   feedbackPad: 0.55,
 } as const;
 
-const FINGER_CURL_REST = 0.7;
-const FINGER_CURL_RAISED = 0.05;
+/** Thumb turn is scaled against this finger curl (radians). */
+const THUMB_REFERENCE_CURL = 0.7;
 const RAIL_OPACITY = 0.55;
 const ARROW_DIM = 0.4;
 
@@ -150,14 +151,14 @@ export function applyFlow(
     );
   }
   const curl = MathUtils.lerp(
-    FINGER_CURL_REST,
-    FINGER_CURL_RAISED,
-    visuals.handRaise,
+    FINGER_CURL.open,
+    FINGER_CURL.closed,
+    visuals.fingerCurl,
   );
   for (const finger of objects.fingers) finger.rotation.z = -curl;
   for (const tip of objects.tips) tip.rotation.z = -curl * 0.8;
   if (objects.thumb)
-    objects.thumb.rotation.z = -0.5 * (curl / FINGER_CURL_REST);
+    objects.thumb.rotation.z = -0.5 * (curl / THUMB_REFERENCE_CURL);
 
   // The contact ring. The touch and pressure selections change how strongly
   // it is drawn; nothing about it is a sensation.
