@@ -177,6 +177,14 @@ const STOP_STATES: Record<StopId, StopState> = {
     shell: 0.55,
     focus: "all",
   },
+  // Sources: the helmet recedes far behind the archive.
+  sources: {
+    position: [3.4, 1.1, 6.6],
+    target: [0, 0.2, 0],
+    yaw: -0.9,
+    shell: 0.35,
+    focus: "all",
+  },
   // The Future: the whole concept prototype, closed again, behind the roadmap.
   future: {
     position: [2.2, 0.7, 4.2],

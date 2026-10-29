@@ -16,7 +16,8 @@ export type ChapterId =
   | "feedback"
   | "embodiment"
   | "science"
-  | "future";
+  | "future"
+  | "sources";
 
 export type Chapter = {
   id: ChapterId;
@@ -40,6 +41,7 @@ export const CHAPTERS: readonly Chapter[] = [
   { id: "embodiment", name: "Embodiment", anchor: "virtual-embodiment" },
   { id: "science", name: "Current Science", anchor: "current-science" },
   { id: "future", name: "Future", anchor: "the-future" },
+  { id: "sources", name: "Sources", anchor: "sources" },
 ];
 
 export type StopId =
@@ -63,7 +65,8 @@ export type StopId =
   | "concepts"
   | "ingredients"
   | "science"
-  | "future";
+  | "future"
+  | "sources";
 
 export type Stop = {
   id: StopId;
@@ -248,6 +251,13 @@ export const STOPS: readonly Stop[] = [
     body: [
       "Six stages, from virtual reality as it exists today to the B-NEURA design goal. Select a stage to see what it means, where the research stands and what remains unresolved.",
     ],
+  },
+  {
+    id: "sources",
+    chapter: "sources",
+    chapterHeadline: "Sources",
+    headline: "The research behind every statement",
+    body: [],
   },
 ];
 

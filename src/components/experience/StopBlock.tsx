@@ -43,8 +43,11 @@ export function StopBlock({
     stop.chapter === "flow" ||
     stop.chapter === "feedback" ||
     stop.chapter === "embodiment";
-  // Current Science and the Future roadmap need the full width.
-  const isWide = stop.chapter === "science" || stop.chapter === "future";
+  // Current Science, the Future roadmap and Sources need the full width.
+  const isWide =
+    stop.chapter === "science" ||
+    stop.chapter === "future" ||
+    stop.chapter === "sources";
   const nextStop = STOPS[index + 1];
 
   return (

@@ -23,6 +23,7 @@ import { VirtualControl } from "@/components/embodiment/VirtualControl";
 import { FeedbackCompare } from "@/components/flow/FeedbackCompare";
 import { FutureRoadmap } from "@/components/future/FutureRoadmap";
 import { CurrentScience } from "@/components/science/CurrentScience";
+import { Sources } from "@/components/sources/Sources";
 import { FeedbackKinds } from "@/components/flow/FeedbackKinds";
 import { FlowControls } from "@/components/flow/FlowControls";
 import { FlowLabels } from "@/components/flow/FlowLabels";
@@ -289,6 +290,8 @@ export function ExperienceShell() {
         return <CurrentScience />;
       case "future":
         return <FutureRoadmap />;
+      case "sources":
+        return <Sources />;
       default:
         return null;
     }

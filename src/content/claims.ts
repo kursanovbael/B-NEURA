@@ -1,4 +1,5 @@
 import type { Classification } from "./maturity";
+import type { TopicId } from "./topics";
 
 /**
  * The claims register: the source of truth for public scientific copy.
@@ -36,6 +37,8 @@ export type Claim = {
   verification: Verification | null;
   /** Ids of records in `sources`. */
   sourceRefs: readonly string[];
+  /** Research topics (MASTER_PLAN section 11) the claim belongs to. */
+  topics: readonly TopicId[];
   /** Approved public wording. Shown only while the claim is public. */
   wording: string | null;
   notes: string;
@@ -63,6 +66,7 @@ export const claims: readonly Claim[] = [
       "hochberg-2012",
       "collinger-2013",
     ],
+    topics: ["bci"],
     wording:
       "Scalp EEG records brain activity without surgery and is common in brain-computer interface research, but the control it gives is limited. Detailed control of a robotic arm, handwriting or speech has so far needed electrodes implanted in the brain.",
     notes:
@@ -82,6 +86,7 @@ export const claims: readonly Claim[] = [
       "willett-2021",
       "willett-2023",
     ],
+    topics: ["bci", "decoding"],
     wording:
       "Decoders that turn brain activity into intended movements, handwriting or speech have worked in research with a small number of people with paralysis, using electrodes implanted in the brain.",
     notes:
@@ -100,6 +105,7 @@ export const claims: readonly Claim[] = [
       "armenta-salas-2018",
       "bensmaia-miller-2014",
     ],
+    topics: ["stimulation", "sensory-feedback"],
     wording:
       "Stimulating the brain through implanted electrodes has evoked touch-like and position-like sensations in single research participants with paralysis. Major challenges remain.",
     notes:
@@ -113,6 +119,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["laver-2025"],
+    topics: ["vr-rehabilitation"],
     wording:
       "Virtual reality systems are available today and are used in clinical rehabilitation, for example after stroke. Trials suggest small benefits, with mostly low- to moderate-certainty evidence.",
     notes:
@@ -128,6 +135,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: FULL_TEXT,
     sourceRefs: ["hochberg-2006", "hochberg-2012", "willett-2021"],
+    topics: ["bci", "decoding"],
     wording:
       "When the body stops responding, the brain may not stop intending.",
     notes:
@@ -148,6 +156,7 @@ export const claims: readonly Claim[] = [
       "raspopovic-2014",
       "armenta-salas-2018",
     ],
+    topics: ["sensory-feedback", "stimulation", "neuroprosthetics"],
     wording:
       "In research studies, stimulation through implanted electrodes has evoked touch-like sensations in a few people with paralysis or amputation. Nothing on this page produces them.",
     notes:
@@ -161,6 +170,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["flesher-2016", "raspopovic-2014"],
+    topics: ["sensory-feedback", "stimulation", "neuroprosthetics"],
     wording:
       "In single-participant studies, stimulation through implanted electrodes evoked sensations that included pressure, and their strength could be adjusted.",
     notes:
@@ -174,6 +184,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: FULL_TEXT,
     sourceRefs: ["armenta-salas-2018", "horch-2011"],
+    topics: ["sensory-feedback", "stimulation", "neuroprosthetics"],
     wording:
       "Early studies have evoked a sense of limb position or movement in single participants: through brain stimulation in one person with tetraplegia, and through nerve stimulation in one amputee. Evidence is very limited.",
     notes:
@@ -187,6 +198,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["osborn-2024"],
+    topics: ["sensory-feedback", "neuroprosthetics"],
     wording:
       "In research, a wearable thermal device on the skin of the residual limb evoked cooling sensations felt in the missing hand of amputees. This is skin-based feedback, not a brain interface.",
     notes:
@@ -200,6 +212,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["pacchierotti-2017"],
+    topics: ["sensory-feedback"],
     wording:
       "Built mainly on sight and sound. Wearable devices that add touch cues to the hand are a more recent, still-developing area.",
     notes:
@@ -213,6 +226,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: FULL_TEXT,
     sourceRefs: ["flesher-2016", "flesher-2021", "bensmaia-miller-2014"],
+    topics: ["sensory-feedback", "stimulation"],
     wording:
       "Imagines returning information through a neural interface. In research, implanted electrodes have evoked touch-like sensations in a few people. It is not demonstrated here.",
     notes:
@@ -226,6 +240,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: FULL_TEXT,
     sourceRefs: ["bensmaia-miller-2014", "flesher-2021"],
+    topics: ["sensory-feedback", "neuroprosthetics"],
     wording:
       "Sensory feedback means information about what happened returning to the user. Through implanted electrodes it has been shown only in small research studies, and major challenges remain.",
     notes:
@@ -246,6 +261,7 @@ export const claims: readonly Claim[] = [
       "collinger-2013",
       "bensmaia-miller-2014",
     ],
+    topics: ["bci", "neuroprosthetics"],
     wording:
       "In research studies, a small number of people with tetraplegia have controlled devices using signals from electrodes implanted in the motor cortex. B-NEURA only simulates this.",
     notes:
@@ -253,12 +269,13 @@ export const claims: readonly Claim[] = [
   },
   {
     id: "embodiment-visual-feedback",
-    kind: "finding",
+    kind: "technology",
     text: "In laboratory studies, a virtual arm moving in step with a person's hidden hand, or touched in sync with it, could come to feel like their own.",
     maturity: "experimental",
     sourceStatus: "VERIFIED",
     verification: FULL_TEXT,
     sourceRefs: ["slater-2008", "slater-2009"],
+    topics: ["embodiment", "body-ownership"],
     wording:
       "In laboratory studies, a virtual arm that moved in step with a person's hidden hand, or was touched in sync with it, could come to feel like their own.",
     notes:
@@ -272,6 +289,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["haggard-2017", "gallagher-2000"],
+    topics: ["embodiment"],
     wording: `Sense of agency is the feeling of controlling your own actions and, through them, events in the world. ${CONCEPT_ONLY}`,
     notes:
       "Definition on an abstract basis: Haggard 2017 defines it in nearly these words. Not a technology, so no maturity. Never use 'AGENCY DETECTED'.",
@@ -284,6 +302,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["tsakiris-2010", "longo-2008"],
+    topics: ["body-ownership"],
     wording: `Body ownership is the feeling that a body part is your own. ${CONCEPT_ONLY}`,
     notes:
       "Definition on an abstract basis: Tsakiris 2010 ('the experience of this body as mine'). Not a technology, so no maturity.",
@@ -296,6 +315,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: ABSTRACT,
     sourceRefs: ["longo-2008", "slater-2008", "slater-2009"],
+    topics: ["embodiment", "body-ownership"],
     wording: `Embodiment describes experiencing a body part as your own, where you see it, and under your control. Researchers study it with rubber-hand and virtual-reality illusions. ${CONCEPT_ONLY}`,
     notes:
       "The definition rests on the Longo 2008 abstract (ownership, location and agency). The virtual-reality part rests on the Slater 2008 and 2009 full texts. Not a technology, so no maturity. Kilteni, Groten and Slater (2012) was identified but not read.",
@@ -314,6 +334,7 @@ export const claims: readonly Claim[] = [
       "page-2018",
       "tsakiris-2010",
     ],
+    topics: ["embodiment", "neuroprosthetics"],
     wording:
       "Research suggests that matching what you see, what you do and what you feel may help a virtual or artificial limb feel like part of the body. Results vary and the evidence is limited.",
     notes:
@@ -327,6 +348,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "VERIFIED",
     verification: FULL_TEXT,
     sourceRefs: ["page-2018"],
+    topics: ["embodiment", "neuroprosthetics"],
     wording:
       "In one long-term study of a single person with a hand amputation, movement control alone and sensation alone were each linked to the prosthesis feeling more like part of the body, and combining them added no significant improvement.",
     notes:
@@ -342,6 +364,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "NOT_REQUIRED",
     verification: null,
     sourceRefs: [],
+    topics: ["bci", "sensory-feedback"],
     wording:
       "Design goal: one wearable headset that combines brain sensing, decoding, a VR display and feedback. The NeuroHelmet is a concept prototype; this headset does not exist.",
     notes:
@@ -355,6 +378,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "NOT_REQUIRED",
     verification: null,
     sourceRefs: [],
+    topics: ["sensory-feedback"],
     wording:
       "Design goal: touch, pressure, position and temperature returned together through a neural interface while interacting in VR. It is a goal, not a demonstrated capability.",
     notes:
@@ -368,6 +392,7 @@ export const claims: readonly Claim[] = [
     sourceStatus: "NOT_REQUIRED",
     verification: null,
     sourceRefs: [],
+    topics: ["embodiment"],
     wording:
       "Design goal: a virtual body that a person with paralysis could control and come to feel as their own. It is a goal, not a demonstrated capability.",
     notes:
